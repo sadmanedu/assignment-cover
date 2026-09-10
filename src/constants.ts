@@ -25,10 +25,13 @@ export const DEFAULT_DATA: CoverData = {
   submissionDate: todayISO(),
 };
 
+/** Official JNU crest shipped with the app (public/jnu-logo.png). */
+export const DEFAULT_LOGO_URL = '/jnu-logo.png';
+
 export const DEFAULT_SETTINGS: CoverSettings = {
   accentColor: '#1e3a8a',
   borderStyle: 'double',
-  logoDataUrl: null,
+  logoDataUrl: DEFAULT_LOGO_URL,
   logoShape: 'normal',
   logoSize: 36,
   fontKey: 'serif',

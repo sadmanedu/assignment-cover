@@ -34,7 +34,7 @@ All state lives in a [Zustand](https://zustand.docs.pmnd.rs/) store and updates 
 ### 2. Customization & styling engine
 - **Theme & accent colors** — 7 presets + custom color picker; dynamically re-tints borders, headers, the title, the rules, and the default emblem.
 - **Border styles** — *None*, *Single Thin*, *Double Classic*, *Decorative* (double frame + inner hairline + corner ornaments), with live mini-previews.
-- **Logo customization** — upload any image (PNG/JPG/SVG, ≤ 2.5 MB), shape toggle (*Normal* / *Circular*), size slider (24–60 mm). The built-in default is a generated academic emblem (torch + open book + lotus) that auto-tints with your accent.
+- **Logo customization** — official JNU crest by default; upload any image (PNG/JPG/SVG, ≤ 2.5 MB), shape toggle (*Normal* / *Circular*), size slider (24–60 mm). A generated accent-tinted academic emblem serves as the fallback.
 - **Typography & background** — Modern Sans (Inter), Classic Serif (Georgia), Formal (Palatino); backgrounds: Pure White, Off-White, Cream, Light Gray, Linen Texture.
 
 ### 3. Live A4 preview workspace
@@ -70,6 +70,6 @@ src/
 
 ## Notes
 
-- The default emblem is a placeholder seal — upload your official institutional logo for final covers.
+- The default logo is the **official JNU crest** (`public/jnu-logo.png`); upload any other institutional logo to replace it. If no logo is available, a generated accent-tinted academic emblem is used as fallback.
 - Preview fonts load from Google Fonts (Inter) with system fallbacks; exports rasterize whatever the browser rendered.
 - Cover layout follows standard academic formatting: centered headers, structured *Submitted To / Submitted By* blocks, balanced whitespace, date pinned to the bottom.

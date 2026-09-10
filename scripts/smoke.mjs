@@ -41,7 +41,8 @@ try {
     ['date of submission', html.includes('Date of Submission')],
     ['zoom toolbar (Fit)', html.includes('Fit')],
     ['export buttons', html.includes('PNG') && html.includes('PDF') && html.includes('Print')],
-    ['emblem img present', html.includes('data:image/svg+xml')],
+    ['JNU crest on sheet', html.includes('/jnu-logo.png')],
+    ['JNU crest in logo panel', html.includes('jnu-logo.png')],
   ];
   for (const [name, ok] of checks) {
     console.log(`${ok ? 'PASS' : 'FAIL'}  ${name}`);

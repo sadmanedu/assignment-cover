@@ -8,6 +8,7 @@ import {
   FONT_STACKS,
   LOGO_SIZE_MAX,
   LOGO_SIZE_MIN,
+  DEFAULT_LOGO_URL,
   STORAGE_KEY,
 } from '../constants';
 import { toast } from '../lib/toast';
@@ -346,13 +347,13 @@ export function ControlsPanel({ logoUrl }: { logoUrl: string }) {
             <button type="button" className="btn" onClick={() => fileRef.current?.click()}>
               Upload Logo
             </button>
-            {cover.logoDataUrl ? (
-              <button type="button" className="btn btn-ghost" onClick={() => set({ logoDataUrl: null })}>
-                Use default emblem
+            {cover.logoDataUrl !== DEFAULT_LOGO_URL ? (
+              <button type="button" className="btn btn-ghost" onClick={() => set({ logoDataUrl: DEFAULT_LOGO_URL })}>
+                Use university logo
               </button>
             ) : (
               <span className="text-[11px] text-slate-400">
-                Default emblem — auto-tints with your accent color
+                Official JNU crest — upload to replace
               </span>
             )}
           </div>
