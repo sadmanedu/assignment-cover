@@ -1,73 +1,75 @@
-# Assignment Cover Page Designer — Jagannath University, Dhaka
+# Assignment Cover Studio
 
-A single-page web app for designing professional **A4 assignment / report cover
-pages** with the Jagannath University logo, a live what-you-see-is-what-you-get
-preview, one-click PDF/PNG export, and full local persistence.
+A live A4 assignment cover page designer — built for **JAGANNATH UNIVERSITY, DHAKA** covers, but fully generic.
 
-![Stack](https://img.shields.io/badge/stack-React%20%7C%20TypeScript%20%7C%20Vite%20%7C%20Tailwind-646cff)
+Split-screen workspace: **form controls on the left**, **live A4 preview on the right**. Type, restyle, then export a true A4 sheet as **PDF**, **PNG**, or straight to **Print**.
 
-## Features
+![stack](https://img.shields.io/badge/React_19-Vite_8-blue) ![tailwind](https://img.shields.io/badge/Tailwind_CSS-4-38bdf8)
 
-### Form inputs
-- **Academic details** — University Name, Department, Course Title, Course Code,
-  Assignment/Report Title.
-- **Student details** — Name, ID/Roll, Session, Year, Semester.
-- **Faculty details** — Instructor name (*Submitted To*) and Designation.
-- **Metadata** — Submission date (printed in long form, e.g. `10 September 2026`).
-
-### Customization engine
-- **Accent color** — curated palette (JNU Blue, Navy, Maroon, Forest, …) plus a
-  free-form color picker; drives borders, rules, headings and the circular logo ring.
-- **Page borders** — None · Single Thin · Double Classic · Decorative
-  (double rule with corner/center diamond markers).
-- **Logo** — upload any institutional logo (PNG/JPG/SVG/WebP), Normal or
-  **Circular** crop, Small/Medium/Large sizing, and one-click reset to the
-  bundled Jagannath University crest.
-- **Typography** — Modern Sans (Inter), Elegant Serif (Playfair Display),
-  Academic (Times New Roman).
-- **Backgrounds** — Pure White, Off-white, Cream, and a Linen weave texture.
-
-### Live A4 workspace
-- Exact **210 × 297 mm** sheet rendered at 794 × 1123 px (96 dpi).
-- Zoom **+ / − / Fit / 100%** controls (and `+`, `-`, `0` keyboard shortcuts),
-  with a dotted desktop and drop shadow.
-- Split-screen layout: controls on the left, preview on the right
-  (stacks vertically on small screens).
-
-### Export, storage & utilities
-- **PDF** — exact A4 via jsPDF + html2canvas at ~288 dpi, 100% scale.
-- **PNG** — high-resolution image of the rendered sheet.
-- **Print / browser PDF** — dedicated print stylesheet (`@page A4, margin 0`)
-  for standard A4, 100% scale, default margins in the browser dialog.
-- **Save JSON / Load JSON** — portable snapshots of every field and style.
-- **Copy Details** — plain-text summary of the cover page to the clipboard.
-- **Reset** — restore the bundled defaults.
-- Everything is **auto-saved to `localStorage`** as you type.
-
-## Develop
+## Quick start
 
 ```bash
 npm install
-npm run dev      # start the dev server
-npm run build    # type-check + production build to dist/
+npm run dev      # → http://localhost:5173
+```
+
+Other scripts:
+
+```bash
+npm run build    # production build → dist/
 npm run preview  # serve the production build
+npm run typecheck
 ```
 
-## Project layout
+## Features
+
+### 1. State management & form inputs
+- **Academic details** — University name, Department, Course title, Course code, Assignment/Report title.
+- **Student details** — Name, ID/Roll number, Session, Year, Semester (numeric values auto-ordinal: `2` → `2nd`).
+- **Faculty details** — Instructor name (“Submitted To”) and designation.
+- **Metadata** — Submission date (rendered long-form: *10 September 2026*).
+
+All state lives in a [Zustand](https://zustand.docs.pmnd.rs/) store and updates the preview instantly.
+
+### 2. Customization & styling engine
+- **Theme & accent colors** — 7 presets + custom color picker; dynamically re-tints borders, headers, the title, the rules, and the default emblem.
+- **Border styles** — *None*, *Single Thin*, *Double Classic*, *Decorative* (double frame + inner hairline + corner ornaments), with live mini-previews.
+- **Logo customization** — upload any image (PNG/JPG/SVG, ≤ 2.5 MB), shape toggle (*Normal* / *Circular*), size slider (24–60 mm). The built-in default is a generated academic emblem (torch + open book + lotus) that auto-tints with your accent.
+- **Typography & background** — Modern Sans (Inter), Classic Serif (Georgia), Formal (Palatino); backgrounds: Pure White, Off-White, Cream, Light Gray, Linen Texture.
+
+### 3. Live A4 preview workspace
+- A true 210 × 297 mm sheet rendered 1:1 and scaled for the viewport.
+- Zoom controls **− / + / Fit** with percentage readout; auto-fits on window resize until you zoom manually.
+
+### 4. Export, storage & utilities
+- **PDF** — jsPDF + html2canvas: captures an off-screen 1:1 copy of the sheet (2.5× supersampled ≈ 254 dpi) into a true A4 page at **100% scale**, zero extra margins.
+- **PNG** — same capture, downloaded as a ~254 dpi PNG.
+- **Print** — optimized `@media print` stylesheet (A4, `@page margin: 0`, only the sheet is visible) → print at 100% scale with default margins.
+- **Save / Load** — JSON persistence to `localStorage`.
+- **Copy Details** — plain-text summary of every field to the clipboard.
+- **Reset** — restores all defaults.
+
+## Project structure
 
 ```
-public/jnu-logo.png          Bundled Jagannath University crest (transparent PNG)
 src/
+  App.tsx                  # shell: header, split layout, off-screen export sheet
+  store.ts                 # Zustand store (all cover data + settings)
+  types.ts / constants.ts  # types, defaults, presets (colors, fonts, borders, bgs)
   components/
-    App.tsx                  State, persistence, export wiring
-    ControlPanel.tsx         All form + customization controls
-    CoverSheet.tsx           The A4 artwork (borders, logo, typed blocks)
-    PreviewStage.tsx         Scaled live preview + zoom toolbar
-    ui.tsx                   Field / card / segmented-control primitives
-  options.ts                 Palettes, fonts, borders, background presets
-  defaults.ts                Default JNU cover content
-  utils/
-    exportArtwork.ts         PNG, PDF (jsPDF) and print entry points
-    helpers.ts               Date formatting, JSON/clipboard, image downscaling
-    color.ts                 Hex → rgba helpers
+    Sheet.tsx              # the A4 cover document (borders, blocks, logo)
+    ControlsPanel.tsx      # left-side form controls
+    PreviewPanel.tsx       # zoom toolbar, preview canvas, export buttons
+    ui.tsx                 # Section / Field / Seg / Toast primitives
+  lib/
+    emblem.ts              # SVG academic-emblem generator (accent-tinted data URL)
+    exporters.ts           # html2canvas → PNG / jsPDF → A4 PDF (lazy-loaded)
+    format.ts              # ordinals, dates, clipboard, color math
+    toast.ts               # tiny toast store
 ```
+
+## Notes
+
+- The default emblem is a placeholder seal — upload your official institutional logo for final covers.
+- Preview fonts load from Google Fonts (Inter) with system fallbacks; exports rasterize whatever the browser rendered.
+- Cover layout follows standard academic formatting: centered headers, structured *Submitted To / Submitted By* blocks, balanced whitespace, date pinned to the bottom.

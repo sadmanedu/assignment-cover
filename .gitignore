@@ -2,8 +2,4 @@ node_modules
 dist
 *.local
 .DS_Store
-
-# smoke test artifact
-test/bundle.mjs
-image-search/
-tsconfig.tsbuildinfo
+npm-debug.log*

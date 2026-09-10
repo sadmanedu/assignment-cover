@@ -1,6 +1,4 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
 
 html,
 body,
@@ -10,99 +8,81 @@ body,
 
 body {
   margin: 0;
-  font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+  font-family: Inter, 'Segoe UI', system-ui, -apple-system, sans-serif;
   -webkit-font-smoothing: antialiased;
 }
 
-/* Slim, unobtrusive scrollbars for the control panel */
-.nice-scroll::-webkit-scrollbar {
-  width: 9px;
-  height: 9px;
-}
-.nice-scroll::-webkit-scrollbar-thumb {
-  background: #cbd5e1;
-  border-radius: 8px;
-  border: 2px solid transparent;
-  background-clip: content-box;
-}
-.nice-scroll::-webkit-scrollbar-thumb:hover {
-  background: #94a3b8;
-  background-clip: content-box;
-}
-.nice-scroll::-webkit-scrollbar-track {
-  background: transparent;
+/* Dotted work-surface behind the A4 sheet */
+.preview-bg {
+  background-color: #e2e8f0;
+  background-image: radial-gradient(#94a3b8 1px, transparent 1px);
+  background-size: 22px 22px;
 }
 
-/* Native color input reset */
-input[type='color'] {
-  -webkit-appearance: none;
-  appearance: none;
-  border: none;
-  padding: 0;
-  background: transparent;
-  cursor: pointer;
-}
-input[type='color']::-webkit-color-swatch-wrapper {
-  padding: 0;
-}
-input[type='color']::-webkit-color-swatch {
-  border: 1px solid rgba(15, 23, 42, 0.18);
-  border-radius: 9999px;
-}
-input[type='color']::-moz-color-swatch {
-  border: 1px solid rgba(15, 23, 42, 0.18);
-  border-radius: 9999px;
+/* Off-screen 1:1 sheet used for PNG/PDF capture and printing */
+.offscreen-sheet {
+  position: fixed;
+  left: -220vw;
+  top: 0;
+  pointer-events: none;
+  z-index: -10;
 }
 
-/* ===== A4 print: isolate the sheet at 100% scale, default A4 page ===== */
+/* ---------- Reusable controls ---------- */
+.btn {
+  @apply inline-flex items-center justify-center gap-1.5 rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 shadow-sm transition select-none hover:border-slate-400 hover:bg-slate-50 active:scale-[0.98] disabled:pointer-events-none disabled:opacity-50;
+}
+
+.btn-primary {
+  @apply border-blue-700 bg-blue-700 text-white hover:border-blue-800 hover:bg-blue-800;
+}
+
+.btn-ghost {
+  @apply border-transparent bg-transparent text-slate-500 shadow-none hover:bg-slate-100;
+}
+
+.field-label {
+  @apply mb-1 block text-[11px] font-semibold tracking-wide text-slate-500 uppercase;
+}
+
+.field-input {
+  @apply w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-800 shadow-sm transition outline-none placeholder:text-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20;
+}
+
+.panel-section {
+  @apply border-b border-slate-200 px-5 py-4;
+}
+
+.seg {
+  @apply flex flex-1 cursor-pointer items-center justify-center rounded-md px-2 py-1.5 text-xs font-semibold transition select-none;
+}
+
+/* ---------- Print: show only the sheet, true A4, zero margins ---------- */
 @media print {
   @page {
-    size: A4 portrait;
+    size: A4;
     margin: 0;
   }
-  html,
-  body,
-  #root {
+
+  body {
     background: #ffffff !important;
-    height: auto !important;
   }
-  /* hide the app chrome, keep only the A4 sheet */
-  aside {
-    display: none !important;
-  }
+
   body * {
     visibility: hidden;
   }
-  #a4-sheet,
-  #a4-sheet * {
+
+  #print-sheet,
+  #print-sheet * {
     visibility: visible;
   }
-  main {
-    position: static !important;
-  }
-  #preview-stage {
-    overflow: visible !important;
-    padding: 0 !important;
-    background: #ffffff !important;
-    position: static !important;
-    background-image: none !important;
-    height: auto !important;
-  }
-  #sheet-scaler {
-    transform: none !important;
-    width: auto !important;
-    height: auto !important;
-    margin: 0 !important;
-    padding: 0 !important;
-    display: block !important;
-  }
-  #sheet-transform {
-    transform: none !important;
-  }
-  #a4-sheet {
-    position: fixed;
-    top: 0;
-    left: 0;
-    box-shadow: none !important;
+
+  #print-sheet {
+    position: absolute !important;
+    left: 0 !important;
+    top: 0 !important;
+    width: 210mm;
+    height: 297mm;
+    z-index: 0 !important;
   }
 }
