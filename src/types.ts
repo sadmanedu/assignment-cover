@@ -1,6 +1,6 @@
 export type BorderStyle = 'none' | 'single' | 'double' | 'decorative';
 export type LogoShape = 'normal' | 'circular';
-export type FontKey = 'sans' | 'serif' | 'formal' | 'saira';
+export type FontKey = 'sans' | 'formal' | 'saira';
 export type BackgroundKey = 'white' | 'offwhite' | 'cream' | 'gray' | 'linen';
 
 export interface CoverData {

@@ -148,7 +148,7 @@ export function Sheet(props: SheetProps) {
 
   const accent = accentColor;
   const bg = BACKGROUNDS[backgroundKey];
-  const font = FONT_STACKS[fontKey];
+  const font = FONT_STACKS[fontKey] ?? FONT_STACKS.sans;
   const logo = logoDataUrl ?? emblemUrl;
   const circular = logoShape === 'circular';
 

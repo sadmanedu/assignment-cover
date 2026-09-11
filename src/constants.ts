@@ -34,7 +34,7 @@ export const DEFAULT_SETTINGS: CoverSettings = {
   logoDataUrl: DEFAULT_LOGO_URL,
   logoShape: 'normal',
   logoSize: 36,
-  fontKey: 'serif',
+  fontKey: 'sans',
   backgroundKey: 'white',
 };
 
@@ -50,14 +50,12 @@ export const ACCENT_PRESETS: { name: string; value: string }[] = [
 
 export const FONT_STACKS: Record<FontKey, string> = {
   sans: `'Inter','Segoe UI',system-ui,-apple-system,sans-serif`,
-  serif: `Georgia,'Times New Roman','Noto Serif Bengali',serif`,
   formal: `'Palatino Linotype','Book Antiqua',Palatino,Georgia,serif`,
   saira: `'Saira Semi Condensed','Arial Narrow',Arial,sans-serif`,
 };
 
 export const FONT_OPTIONS: { key: FontKey; label: string; hint: string }[] = [
   { key: 'sans', label: 'Modern Sans', hint: 'Inter' },
-  { key: 'serif', label: 'Classic Serif', hint: 'Georgia' },
   { key: 'formal', label: 'Formal', hint: 'Palatino' },
   { key: 'saira', label: 'Saira Semi Condensed', hint: 'Condensed Sans' },
 ];

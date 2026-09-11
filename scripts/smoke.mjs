@@ -50,6 +50,8 @@ try {
     ['zoom toolbar (Fit)', html.includes('Fit')],
     ['export buttons', html.includes('PNG') && html.includes('PDF') && html.includes('Print')],
     ['saira font option', html.includes('Saira Semi Condensed')],
+    ['classic serif removed', !html.includes('Classic Serif')],
+    ['modern sans is default', /font-family:\s*(?:&quot;|")?Inter/i.test(html)],
     ['JNU crest on sheet', html.includes('/jnu-logo.png')],
     ['JNU crest in logo panel', html.includes('jnu-logo.png')],
   ];
