@@ -36,6 +36,10 @@ try {
     ['university name on sheet', html.includes('JAGANNATH UNIVERSITY, DHAKA')],
     ['department block', html.includes('Department of Computer Science')],
     ['submitted-to label', html.toLowerCase().includes('submitted to')],
+    [
+      'assignment title before submitted-to (on sheet)',
+      html.indexOf('An Assignment on') < html.lastIndexOf('Submitted To'),
+    ],
     ['assignment title', html.includes('Binary Search Trees')],
     ['submitted-by label', html.toLowerCase().includes('submitted by')],
     ['date of submission', html.includes('Date of Submission')],

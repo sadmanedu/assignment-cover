@@ -229,17 +229,8 @@ export function Sheet(props: SheetProps) {
 
         <Divider top={7} />
 
-        {/* Submitted To */}
-        <Label top={5}>Submitted To</Label>
-        <div style={{ marginTop: '1.5mm', fontSize: '12pt', fontWeight: 700, color: DARK }}>
-          {val(instructorName)}
-        </div>
-        <div style={{ marginTop: '0.8mm', fontSize: '10.5pt', color: MID }}>
-          {val(instructorDesignation)}
-        </div>
-
         {/* Assignment title */}
-        <div style={{ marginTop: '9mm', fontSize: '10.5pt', fontStyle: 'italic', color: GRAY }}>
+        <div style={{ marginTop: '6mm', fontSize: '10.5pt', fontStyle: 'italic', color: GRAY }}>
           An Assignment on
         </div>
         <div
@@ -253,6 +244,17 @@ export function Sheet(props: SheetProps) {
           }}
         >
           {val(assignmentTitle, 'Assignment Title')}
+        </div>
+
+        <Divider top={7} />
+
+        {/* Submitted To */}
+        <Label top={5}>Submitted To</Label>
+        <div style={{ marginTop: '1.5mm', fontSize: '12pt', fontWeight: 700, color: DARK }}>
+          {val(instructorName)}
+        </div>
+        <div style={{ marginTop: '0.8mm', fontSize: '10.5pt', color: MID }}>
+          {val(instructorDesignation)}
         </div>
 
         <Divider top={8} />
