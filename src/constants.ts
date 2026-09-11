@@ -52,12 +52,14 @@ export const FONT_STACKS: Record<FontKey, string> = {
   sans: `'Inter','Segoe UI',system-ui,-apple-system,sans-serif`,
   serif: `Georgia,'Times New Roman','Noto Serif Bengali',serif`,
   formal: `'Palatino Linotype','Book Antiqua',Palatino,Georgia,serif`,
+  saira: `'Saira Semi Condensed','Arial Narrow',Arial,sans-serif`,
 };
 
 export const FONT_OPTIONS: { key: FontKey; label: string; hint: string }[] = [
   { key: 'sans', label: 'Modern Sans', hint: 'Inter' },
   { key: 'serif', label: 'Classic Serif', hint: 'Georgia' },
   { key: 'formal', label: 'Formal', hint: 'Palatino' },
+  { key: 'saira', label: 'Saira Semi Condensed', hint: 'Condensed Sans' },
 ];
 
 export const BORDER_OPTIONS: { key: BorderStyle; label: string }[] = [

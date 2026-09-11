@@ -49,6 +49,7 @@ try {
     ['date of submission', html.includes('Date of Submission')],
     ['zoom toolbar (Fit)', html.includes('Fit')],
     ['export buttons', html.includes('PNG') && html.includes('PDF') && html.includes('Print')],
+    ['saira font option', html.includes('Saira Semi Condensed')],
     ['JNU crest on sheet', html.includes('/jnu-logo.png')],
     ['JNU crest in logo panel', html.includes('jnu-logo.png')],
   ];
