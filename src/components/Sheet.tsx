@@ -152,13 +152,10 @@ export function Sheet(props: SheetProps) {
   const logo = logoDataUrl ?? emblemUrl;
   const circular = logoShape === 'circular';
 
-  const sessionLine = [
-    session.trim() ? `Session: ${session}` : '',
-    year.trim() ? `Year: ${ordinal(year)}` : '',
-    semester.trim() ? `Semester: ${ordinal(semester)}` : '',
-  ]
-    .filter(Boolean)
-    .join('   •   ');
+  const yearSemParts: string[] = [];
+  if (year.trim()) yearSemParts.push(`${ordinal(year)} Year`);
+  if (semester.trim()) yearSemParts.push(`${ordinal(semester)} Semester`);
+  const yearSemLine = yearSemParts.join(', ');
 
   return (
     <div
@@ -275,8 +272,14 @@ export function Sheet(props: SheetProps) {
             Student ID: {studentId}
           </div>
         )}
-        {sessionLine && (
-          <div style={{ marginTop: '2.5mm', fontSize: '10.5pt', color: MID }}>{sessionLine}</div>
+        {yearSemLine && (
+          <div style={{ marginTop: '1.5mm', fontSize: '10.5pt', color: MID }}>{yearSemLine}</div>
+        )}
+        {session.trim() && (
+          <div style={{ marginTop: '1.2mm', fontSize: '10.5pt', color: MID }}>
+            <span style={{ color: GRAY }}>Session: </span>
+            <span style={{ fontWeight: 600 }}>{session}</span>
+          </div>
         )}
 
         {/* Submission date (pinned near bottom) */}

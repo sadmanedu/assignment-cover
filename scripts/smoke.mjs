@@ -44,6 +44,8 @@ try {
     ],
     ['assignment title', html.includes('Binary Search Trees')],
     ['submitted-by label', html.toLowerCase().includes('submitted by')],
+    ['year + semester line', html.includes('2nd Year, 4th Semester')],
+    ['year-sem after student id', html.indexOf('2nd Year, 4th Semester') > html.indexOf('Student ID:')],
     ['date of submission', html.includes('Date of Submission')],
     ['zoom toolbar (Fit)', html.includes('Fit')],
     ['export buttons', html.includes('PNG') && html.includes('PDF') && html.includes('Print')],
