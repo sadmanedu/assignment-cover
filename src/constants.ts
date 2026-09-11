@@ -52,6 +52,10 @@ export const ACCENT_PRESETS: { name: string; value: string }[] = [
  * Font stacks — 'Anek Bangla' sits right after the Latin font in every stack:
  * CSS falls back per-glyph, so English/Latin always uses the primary font and
  * Anek Bangla only renders when actual Bengali text appears.
+ *
+ * Note: only light Anek Bangla weights (300–500) are loaded (see index.html).
+ * Headings request 700/800, so the browser clamps Bengali glyphs to the
+ * lightest available face — deliberately lighter than the Latin weights.
  */
 export const FONT_STACKS: Record<FontKey, string> = {
   sans: `'Inter','Anek Bangla','Segoe UI',system-ui,-apple-system,sans-serif`,
