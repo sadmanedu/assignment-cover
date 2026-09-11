@@ -203,13 +203,22 @@ export function ControlsPanel({ logoUrl, mobileVisible }: { logoUrl: string; mob
           />
         </Field>
         <Field label="Designation">
-          <input
-            className="field-input"
+          <textarea
+            className="field-input min-h-[52px] resize-y"
+            rows={2}
             value={cover.instructorDesignation}
             onChange={(e) => set({ instructorDesignation: e.target.value })}
             placeholder="e.g. Professor, Department of CSE"
           />
         </Field>
+        <p className="-mt-1 text-[11px] leading-snug text-slate-400">
+          Tip: press{' '}
+          <kbd className="rounded border border-slate-300 bg-slate-50 px-1 py-0.5 font-sans text-[10px] text-slate-500">
+            Enter
+          </kbd>{' '}
+          (or type <code className="rounded bg-slate-100 px-1 font-mono text-[10px] text-slate-500">\n</code>)
+          {' '}to start the writing on the next line — it breaks the same way on the cover.
+        </p>
       </Section>
 
       {/* ---------- Metadata ---------- */}

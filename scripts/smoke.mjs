@@ -54,6 +54,7 @@ try {
     ['zoom toolbar (Fit)', html.includes('Fit')],
     ['export buttons', html.includes('PNG') && html.includes('PDF') && html.includes('Print')],
     ['saira font option', html.includes('Saira Semi Condensed')],
+    ['designation multiline ready', /white-space:\s*(?:&quot;|")?pre-line/i.test(html)],
     ['classic serif removed', !html.includes('Classic Serif')],
     ['modern sans is default', /font-family:\s*(?:&quot;|")?Inter/i.test(html)],
     ['anek bangla in font stack', html.includes('Anek Bangla')],

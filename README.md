@@ -26,7 +26,7 @@ npm run typecheck
 ### 1. State management & form inputs
 - **Academic details** — University name, Department, Course title, Course code, Assignment/Report title.
 - **Student details** — Name, ID/Roll number, Session, Year, Semester (numeric values auto-ordinal: `2` → `2nd`).
-- **Faculty details** — Instructor name (“Submitted To”) and designation.
+- **Faculty details** — Instructor name (“Submitted To”) and designation. Designation is multi-line: press Enter (or type a literal `\n`) and the cover renders the break on the next line.
 - **Metadata** — Submission date (rendered long-form: *10 September 2026*).
 
 All state lives in a [Zustand](https://zustand.docs.pmnd.rs/) store and updates the preview instantly.

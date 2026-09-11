@@ -257,8 +257,16 @@ export function Sheet(props: SheetProps) {
         <div style={{ marginTop: '1.5mm', fontSize: '12pt', fontWeight: 700, color: DARK }}>
           {val(instructorName)}
         </div>
-        <div style={{ marginTop: '0.8mm', fontSize: '10.5pt', color: MID }}>
-          {val(instructorDesignation)}
+        <div
+          style={{
+            marginTop: '0.8mm',
+            fontSize: '10.5pt',
+            color: MID,
+            whiteSpace: 'pre-line',
+            lineHeight: 1.4,
+          }}
+        >
+          {val(instructorDesignation).replace(/\\n/g, '\n')}
         </div>
 
         <Divider top={8} />
