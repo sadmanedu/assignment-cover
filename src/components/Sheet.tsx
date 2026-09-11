@@ -194,7 +194,7 @@ export function Sheet(props: SheetProps) {
             height: circular ? `${logoSize}mm` : 'auto',
             objectFit: circular ? 'cover' : 'contain',
             borderRadius: circular ? '50%' : '3px',
-            marginTop: '2mm',
+            marginTop: '8mm',
           }}
         />
 
@@ -202,12 +202,12 @@ export function Sheet(props: SheetProps) {
         <div
           style={{
             color: accent,
-            fontSize: '16pt',
+            fontSize: '18pt',
             fontWeight: 800,
             letterSpacing: '0.8px',
             textTransform: 'uppercase',
             lineHeight: 1.3,
-            marginTop: '5mm',
+            marginTop: '11mm',
           }}
         >
           {val(universityName, 'University Name')}
