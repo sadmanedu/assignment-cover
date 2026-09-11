@@ -184,21 +184,6 @@ export function Sheet(props: SheetProps) {
           boxSizing: 'border-box',
         }}
       >
-        {/* University name */}
-        <div
-          style={{
-            color: accent,
-            fontSize: '16pt',
-            fontWeight: 800,
-            letterSpacing: '0.8px',
-            textTransform: 'uppercase',
-            lineHeight: 1.3,
-          }}
-        >
-          {val(universityName, 'University Name')}
-        </div>
-        <NameRule accent={accent} />
-
         {/* Logo */}
         <img
           src={logo}
@@ -209,9 +194,25 @@ export function Sheet(props: SheetProps) {
             height: circular ? `${logoSize}mm` : 'auto',
             objectFit: circular ? 'cover' : 'contain',
             borderRadius: circular ? '50%' : '3px',
-            marginTop: '7mm',
+            marginTop: '2mm',
           }}
         />
+
+        {/* University name (below the logo) */}
+        <div
+          style={{
+            color: accent,
+            fontSize: '16pt',
+            fontWeight: 800,
+            letterSpacing: '0.8px',
+            textTransform: 'uppercase',
+            lineHeight: 1.3,
+            marginTop: '5mm',
+          }}
+        >
+          {val(universityName, 'University Name')}
+        </div>
+        <NameRule accent={accent} />
 
         {/* Department & course */}
         <div style={{ marginTop: '10mm', fontSize: '12.5pt', fontWeight: 700, color: DARK }}>

@@ -34,6 +34,10 @@ try {
   const checks = [
     ['app header rendered', html.includes('Assignment Cover Studio')],
     ['university name on sheet', html.includes('JAGANNATH UNIVERSITY, DHAKA')],
+    [
+      'logo above university name (on sheet)',
+      html.lastIndexOf('/jnu-logo.png') < html.lastIndexOf('JAGANNATH UNIVERSITY, DHAKA'),
+    ],
     ['department block', html.includes('Department of Computer Science')],
     ['course name line', html.includes('Course name:')],
     ['course code line', html.includes('Course code:')],
