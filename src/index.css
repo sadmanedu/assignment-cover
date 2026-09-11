@@ -57,6 +57,23 @@ body {
   @apply flex flex-1 cursor-pointer items-center justify-center rounded-md px-2 py-1.5 text-xs font-semibold transition select-none;
 }
 
+/* Bigger touch targets on phones */
+@media (max-width: 639px) {
+  .btn {
+    padding: 0.5rem 0.65rem;
+  }
+
+  .field-input {
+    padding-top: 0.6rem;
+    padding-bottom: 0.6rem;
+  }
+
+  .seg {
+    padding-top: 0.55rem;
+    padding-bottom: 0.55rem;
+  }
+}
+
 /* ---------- Print: show only the sheet, true A4, zero margins ---------- */
 @media print {
   @page {

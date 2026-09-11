@@ -41,6 +41,10 @@ All state lives in a [Zustand](https://zustand.docs.pmnd.rs/) store and updates 
 - A true 210 × 297 mm sheet rendered 1:1 and scaled for the viewport.
 - Zoom controls **− / + / Fit** with percentage readout; auto-fits on window resize until you zoom manually.
 
+### Responsive layout
+- **Desktop (lg+)**: split screen — form controls left, live preview right.
+- **Phones / tablets**: single-pane with a bottom **Details ⇄ Preview** tab bar, collapsible form sections (accordion headers), a wrapping export toolbar, and enlarged touch targets. The preview auto-fits the smaller viewport and re-fits when the tab is reopened.
+
 ### 4. Export, storage & utilities
 - **PDF** — jsPDF + html2canvas: captures an off-screen 1:1 copy of the sheet (2.5× supersampled ≈ 254 dpi) into a true A4 page at **100% scale**, zero extra margins.
 - **PNG** — same capture, downloaded as a ~254 dpi PNG.

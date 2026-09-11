@@ -10,7 +10,7 @@ const ZOOM_MIN = 0.3;
 const ZOOM_MAX = 1.6;
 const ZOOM_STEP = 0.1;
 
-export function PreviewPanel() {
+export function PreviewPanel({ mobileVisible }: { mobileVisible: boolean }) {
   const cover = useCover();
   const [zoom, setZoom] = useState(0.85);
   const [autoFit, setAutoFit] = useState(true);
@@ -71,9 +71,9 @@ export function PreviewPanel() {
   };
 
   return (
-    <section className="flex min-h-0 min-w-0 flex-1 flex-col">
+    <section className={`flex min-h-0 min-w-0 flex-1 flex-col ${mobileVisible ? '' : 'hidden'} lg:flex`}>
       {/* Toolbar */}
-      <div className="flex h-12 shrink-0 items-center gap-1.5 border-b border-slate-200 bg-white px-3 sm:px-4">
+      <div className="flex min-h-12 shrink-0 flex-wrap items-center gap-x-1.5 gap-y-1 border-b border-slate-200 bg-white px-3 py-1.5 sm:gap-2 sm:px-4 sm:py-0">
         <button type="button" className="btn" title="Fit sheet to window" onClick={() => { setAutoFit(true); fit(); }}>
           Fit
         </button>
@@ -120,9 +120,9 @@ export function PreviewPanel() {
         </div>
       </div>
 
-      {/* Scalloped preview canvas */}
+      {/* Dotted preview canvas */}
       <div ref={containerRef} className="preview-bg min-h-0 flex-1 overflow-auto">
-        <div className="flex min-h-full items-start justify-center p-8">
+        <div className="flex min-h-full items-start justify-center p-4 sm:p-8">
           <div
             className="relative shrink-0"
             style={{ width: A4.wPx * zoom, height: A4.hPx * zoom }}
@@ -142,7 +142,7 @@ export function PreviewPanel() {
         </div>
       </div>
 
-      <div className="shrink-0 border-t border-slate-200 bg-white px-4 py-1.5 text-[11px] text-slate-400">
+      <div className="hidden shrink-0 border-t border-slate-200 bg-white px-4 py-1.5 text-[11px] text-slate-400 sm:block">
         PDF/PNG render at 100% scale on a true A4 page — use default printer margins.
       </div>
     </section>

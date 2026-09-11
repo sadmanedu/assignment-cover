@@ -29,7 +29,7 @@ function borderSample(key: BorderStyle, accent: string): string {
   }
 }
 
-export function ControlsPanel({ logoUrl }: { logoUrl: string }) {
+export function ControlsPanel({ logoUrl, mobileVisible }: { logoUrl: string; mobileVisible: boolean }) {
   const cover = useCover();
   const { set, reset } = cover;
   const fileRef = useRef<HTMLInputElement>(null);
@@ -96,7 +96,9 @@ export function ControlsPanel({ logoUrl }: { logoUrl: string }) {
   const bgEntries = Object.entries(BACKGROUNDS) as [keyof typeof BACKGROUNDS, (typeof BACKGROUNDS)[keyof typeof BACKGROUNDS]][];
 
   return (
-    <aside className="w-full overflow-y-auto bg-white max-lg:max-h-[44dvh] max-lg:border-b max-lg:border-slate-200 lg:w-[400px] lg:shrink-0 lg:border-r lg:border-slate-200">
+    <aside
+      className={`${mobileVisible ? '' : 'hidden'} min-h-0 w-full flex-1 overflow-y-auto bg-white lg:block lg:w-[400px] lg:flex-1-none lg:shrink-0 lg:border-r lg:border-slate-200`}
+    >
       {/* ---------- Academic ---------- */}
       <Section title="Academic Details" icon="🎓">
         <Field label="University Name">
