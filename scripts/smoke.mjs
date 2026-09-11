@@ -35,6 +35,8 @@ try {
     ['app header rendered', html.includes('Assignment Cover Studio')],
     ['university name on sheet', html.includes('JAGANNATH UNIVERSITY, DHAKA')],
     ['department block', html.includes('Department of Computer Science')],
+    ['course name line', html.includes('Course name:')],
+    ['course code line', html.includes('Course code:')],
     ['submitted-to label', html.toLowerCase().includes('submitted to')],
     [
       'assignment title before submitted-to (on sheet)',

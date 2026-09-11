@@ -152,9 +152,6 @@ export function Sheet(props: SheetProps) {
   const logo = logoDataUrl ?? emblemUrl;
   const circular = logoShape === 'circular';
 
-  const courseLine = [courseTitle.trim(), courseCode.trim() ? `(${courseCode})` : '']
-    .filter(Boolean)
-    .join(' ');
   const sessionLine = [
     session.trim() ? `Session: ${session}` : '',
     year.trim() ? `Year: ${ordinal(year)}` : '',
@@ -223,9 +220,18 @@ export function Sheet(props: SheetProps) {
         <div style={{ marginTop: '10mm', fontSize: '12.5pt', fontWeight: 700, color: DARK }}>
           {val(department, 'Department Name')}
         </div>
-        <div style={{ marginTop: '1.5mm', fontSize: '10.5pt', color: MID }}>
-          {val(courseLine)}
-        </div>
+        {courseTitle.trim() && (
+          <div style={{ marginTop: '2.5mm', fontSize: '10.5pt', color: MID }}>
+            <span style={{ color: GRAY }}>Course name: </span>
+            <span style={{ fontWeight: 600 }}>{courseTitle}</span>
+          </div>
+        )}
+        {courseCode.trim() && (
+          <div style={{ marginTop: '1.2mm', fontSize: '10.5pt', color: MID }}>
+            <span style={{ color: GRAY }}>Course code: </span>
+            <span style={{ fontWeight: 600 }}>{courseCode}</span>
+          </div>
+        )}
 
         <Divider top={7} />
 
