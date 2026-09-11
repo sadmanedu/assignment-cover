@@ -48,10 +48,15 @@ export const ACCENT_PRESETS: { name: string; value: string }[] = [
   { name: 'Ink', value: '#111827' },
 ];
 
+/**
+ * Font stacks — 'Anek Bangla' sits right after the Latin font in every stack:
+ * CSS falls back per-glyph, so English/Latin always uses the primary font and
+ * Anek Bangla only renders when actual Bengali text appears.
+ */
 export const FONT_STACKS: Record<FontKey, string> = {
-  sans: `'Inter','Segoe UI',system-ui,-apple-system,sans-serif`,
-  formal: `'Palatino Linotype','Book Antiqua',Palatino,Georgia,serif`,
-  saira: `'Saira Semi Condensed','Arial Narrow',Arial,sans-serif`,
+  sans: `'Inter','Anek Bangla','Segoe UI',system-ui,-apple-system,sans-serif`,
+  formal: `'Palatino Linotype','Book Antiqua',Palatino,'Anek Bangla',Georgia,serif`,
+  saira: `'Saira Semi Condensed','Anek Bangla','Arial Narrow',Arial,sans-serif`,
 };
 
 export const FONT_OPTIONS: { key: FontKey; label: string; hint: string }[] = [

@@ -56,6 +56,7 @@ try {
     ['saira font option', html.includes('Saira Semi Condensed')],
     ['classic serif removed', !html.includes('Classic Serif')],
     ['modern sans is default', /font-family:\s*(?:&quot;|")?Inter/i.test(html)],
+    ['anek bangla in font stack', html.includes('Anek Bangla')],
     ['mobile tab bar', html.includes('Switch view')],
     ['JNU crest on sheet', html.includes('/jnu-logo.png')],
     ['JNU crest in logo panel', html.includes('jnu-logo.png')],
