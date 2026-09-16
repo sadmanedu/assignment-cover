@@ -35,7 +35,7 @@ All state lives in a [Zustand](https://zustand.docs.pmnd.rs/) store and updates 
 - **Theme & accent colors** — 7 presets + custom color picker; dynamically re-tints borders, headers, the title, the rules, and the default emblem.
 - **Border styles** — *None*, *Single Thin*, *Double Classic*, *Decorative* (double frame + inner hairline + corner ornaments), with live mini-previews.
 - **Logo customization** — official JNU crest by default; upload any image (PNG/JPG/SVG, ≤ 2.5 MB), shape toggle (*Normal* / *Circular*), size slider (24–60 mm). A generated accent-tinted academic emblem serves as the fallback.
-- **Typography & background** — Modern Sans (Inter, default), Formal (Palatino), Saira Semi Condensed; backgrounds: Pure White, Off-White, Cream, Light Gray, Linen Texture. **Anek Bangla** is the built-in Bengali font: every stack falls back to it per-glyph, so Bengali text (university name, titles…) renders in Anek Bangla while English stays in the selected Latin font. Only light Anek Bangla weights (300–500) are loaded, so Bengali headings render at Medium — visibly lighter than the bold Latin headings.
+- **Typography & background** — Modern Sans (Inter, default), Formal (Palatino), Saira Semi Condensed; backgrounds: Pure White, Off-White, Cream, Light Gray, Linen Texture. **Anek Bangla** is the built-in Bengali font: every stack falls back to it per-glyph, so Bengali text (university name, titles…) renders in Anek Bangla while English stays in the selected Latin font. Only light Anek Bangla weights (300–500) are loaded, so Bengali headings render at Medium — visibly lighter than the bold Latin headings. All three families are **self-hosted** (`src/fonts.css`, files from `@fontsource/*`) — the app makes no network request to a font CDN, and the subsetting behaves exactly as Google Fonts' (`unicode-range` per face).
 
 ### 3. Live A4 preview workspace
 - A true 210 × 297 mm sheet rendered 1:1 and scaled for the viewport.
@@ -51,6 +51,32 @@ All state lives in a [Zustand](https://zustand.docs.pmnd.rs/) store and updates 
 - **Print** — optimized `@media print` stylesheet (A4, `@page margin: 0`, only the sheet is visible) → print at 100% scale with default margins.
 
 > **Previews and downloads are rendered by the same engine.** Exports serialize the live sheet into an SVG `<foreignObject>` (`html-to-image`) and rasterize it with the browser's own layout/paint code, so text position, spacing, rules and dividers in a downloaded PNG/PDF are identical to the on-screen preview. `html2canvas` remains only as a fallback if that rasterization fails.
+
+#### Why the download keeps the preview's fonts (and line breaks)
+
+An SVG document has no access to the page's font cache, so every face the sheet
+uses has to travel *inside* the SVG. `html-to-image` tries to do that on its own,
+but it reads `document.styleSheets` — which throws `SecurityError` for a
+cross-origin stylesheet — and then re-downloads each font file at click time.
+When that re-download failed (offline, blocked CDN, slow/spotty network, a
+sandboxed iframe), the capture silently rendered in a **system** font: the
+download no longer matched the preview, and because the fallback has different
+metrics every paragraph re-flowed, so the **line breaks moved**. The export
+pipeline now closes both doors:
+
+1. **Fonts are self-hosted** (`src/fonts.css`), so the rules are same-origin and
+   readable, and the files are already in the HTTP cache.
+2. **Font files are inlined** as `data:` URLs before the capture
+   (`src/lib/fonts.ts`), so the rasterization needs *zero* network requests. Every
+   family of a stack is collected — CSS falls back per glyph, so Bengali runs are
+   painted by `Anek Bangla` (the second family) while Latin stays in `Inter`.
+   `createObjectURL`-style blob URLs are avoided deliberately: they survive in a
+   Chromium canvas but not reliably in the Safari/WebKit rasterizer.
+3. **Line breaks are pinned** to the ones on screen (`src/lib/freeze.ts`): the
+   export measures where the live preview wrapped each paragraph and writes those
+   breaks into the sheet for the duration of the capture. Screen text and
+   SVG-image text can round glyph advances differently, so this keeps a
+   boundary-line from wrapping on a different word in the download.
 - **Save / Load** — JSON persistence to `localStorage`.
 - **Copy Details** — plain-text summary of every field to the clipboard.
 - **Reset** — restores all defaults.
@@ -70,12 +96,15 @@ src/
   lib/
     emblem.ts              # SVG academic-emblem generator (accent-tinted data URL)
     exporters.ts           # html-to-image (browser rasterizer) → PNG / jsPDF → A4 PDF (lazy-loaded)
+    fonts.ts               # waits for the sheet's faces, inlines them into the capture
+    freeze.ts              # pins the preview's line breaks into the export
     format.ts              # ordinals, dates, clipboard, color math
+  fonts.css                # self-hosted Inter / Saira Semi Condensed / Anek Bangla
     toast.ts               # tiny toast store
 ```
 
 ## Notes
 
 - The default logo is the **official JNU crest** (`public/jnu-logo.png`); upload any other institutional logo to replace it. If no logo is available, a generated accent-tinted academic emblem is used as fallback.
-- Preview fonts load from Google Fonts (Inter) with system fallbacks; exports rasterize whatever the browser rendered.
+- Fonts are self-hosted local files — the app works with no internet connection, and so do the exports.
 - Cover layout follows standard academic formatting: centered headers, structured *Submitted To / Submitted By* blocks, balanced whitespace, date pinned to the bottom.

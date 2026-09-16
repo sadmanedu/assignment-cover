@@ -245,6 +245,12 @@ export function Sheet(props: SheetProps) {
             fontWeight: 800,
             lineHeight: 1.3,
             color: accent,
+            // Honour the line breaks the user typed in the multi-line title box
+            // (`white-space: pre-line`) and keep long unbroken words inside the
+            // 150 mm column — both identical in the preview and the capture,
+            // which share this markup.
+            whiteSpace: 'pre-line',
+            overflowWrap: 'break-word',
           }}
         >
           {val(assignmentTitle, 'Assignment Title')}
@@ -263,6 +269,7 @@ export function Sheet(props: SheetProps) {
             fontSize: '10.5pt',
             color: MID,
             whiteSpace: 'pre-line',
+            overflowWrap: 'break-word',
             lineHeight: 1.4,
           }}
         >

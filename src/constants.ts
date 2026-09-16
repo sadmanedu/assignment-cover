@@ -54,9 +54,14 @@ export const ACCENT_PRESETS: { name: string; value: string }[] = [
  * CSS falls back per-glyph, so English/Latin always uses the primary font and
  * Anek Bangla only renders when actual Bengali text appears.
  *
- * Note: only light Anek Bangla weights (300–500) are loaded (see index.html).
+ * Note: only light Anek Bangla weights (300–500) are loaded (see src/fonts.css).
  * Headings request 700/800, so the browser clamps Bengali glyphs to the
  * lightest available face — deliberately lighter than the Latin weights.
+ *
+ * All three families are self-hosted, never fetched from a CDN: the PNG/PDF
+ * export re-renders the sheet inside an SVG, and only same-origin font files can
+ * be inlined into it — which is what keeps the download's fonts, and therefore
+ * its line breaks, identical to the preview.
  */
 export const FONT_STACKS: Record<FontKey, string> = {
   sans: `'Inter','Anek Bangla','Segoe UI',system-ui,-apple-system,sans-serif`,

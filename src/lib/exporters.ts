@@ -2,6 +2,8 @@ import html2canvas from 'html2canvas';
 import { toCanvas } from 'html-to-image';
 import { jsPDF } from 'jspdf';
 import { BACKGROUNDS } from '../constants';
+import { ensureSheetFontsLoaded, getFontEmbedCss } from './fonts';
+import { freezeLineBreaks } from './freeze';
 import type { BackgroundKey } from '../types';
 
 /** Supersample factor. The sheet is 793.7 CSS px wide (210 mm @ 96 dpi), so 2× ≈ 192 dpi. */
@@ -9,6 +11,16 @@ const SCALE = 2;
 
 interface CaptureOptions {
   backgroundKey: BackgroundKey;
+}
+
+interface RenderOptions extends CaptureOptions {
+  /**
+   * `@font-face` rules with their files inlined as data URLs. Passing this makes
+   * html-to-image skip its own stylesheet walk + font re-download, which is the
+   * step that used to drop the webfonts (and with them the line breaks) whenever
+   * the font CDN could not be re-reached at click time.
+   */
+  fontEmbedCSS?: string;
 }
 
 function getSheetTarget(): HTMLElement {
@@ -56,13 +68,16 @@ async function waitForImages(root: HTMLElement): Promise<void> {
  * with the preview's gap gone. Re-using the preview's own engine for export makes
  * that class of drift impossible.
  */
-async function renderWithBrowser(target: HTMLElement, opts: CaptureOptions): Promise<HTMLCanvasElement> {
+async function renderWithBrowser(target: HTMLElement, opts: RenderOptions): Promise<HTMLCanvasElement> {
   const canvas = await toCanvas(target, {
     pixelRatio: SCALE,
     backgroundColor: BACKGROUNDS[opts.backgroundKey].solid,
     // Fonts & images are already in the HTTP cache — never bust it, otherwise an
     // export made while offline could silently fall back to a system font.
     cacheBust: false,
+    // Self-contained font CSS: no stylesheet parsing, no font downloads, no
+    // silent fallback to a system font (which also re-flows every line break).
+    fontEmbedCSS: opts.fontEmbedCSS,
   });
   if (!canvas.width || !canvas.height) {
     throw new Error('Rasterization produced an empty image');
@@ -79,8 +94,22 @@ async function renderWithBrowser(target: HTMLElement, opts: CaptureOptions): Pro
  * produced. html2canvas paints text slightly lower than the browser does, so
  * this path is deliberately the exception, never the default.
  */
-async function renderWithHtml2Canvas(target: HTMLElement, opts: CaptureOptions): Promise<HTMLCanvasElement> {
+async function renderWithHtml2Canvas(target: HTMLElement, opts: RenderOptions): Promise<HTMLCanvasElement> {
   const wrapper = getWrapper();
+
+  // html2canvas clones the document into an iframe and waits for the *clone's*
+  // fonts before it paints — and that wait happens before `onclone` runs, so a
+  // stylesheet injected there is too late to be honoured. Putting the inlined
+  // @font-face rules in our own document first means they are part of the clone
+  // from the start (and the rules are byte-identical to the fonts already in use,
+  // so the preview cannot shift while they are mounted).
+  let fontStyle: HTMLStyleElement | null = null;
+  if (opts.fontEmbedCSS) {
+    fontStyle = document.createElement('style');
+    fontStyle.setAttribute('data-export-fonts', '');
+    fontStyle.textContent = opts.fontEmbedCSS;
+    document.head.appendChild(fontStyle);
+  }
 
   // Temporarily make the wrapper visible on-screen for html2canvas.
   // html2canvas can struggle with elements far off-screen (left:-220vw) or with z-index:-10.
@@ -134,6 +163,14 @@ async function renderWithHtml2Canvas(target: HTMLElement, opts: CaptureOptions):
       imageTimeout: 15000,
       // Ensure the cloned document has the sheet visible
       onclone: (clonedDoc) => {
+        // Belt and braces: the faces are already cloned over from the live
+        // document, but make sure the clone has them even if that ever changes.
+        if (opts.fontEmbedCSS && !clonedDoc.querySelector('style[data-export-fonts]')) {
+          const style = clonedDoc.createElement('style');
+          style.setAttribute('data-export-fonts', '');
+          style.textContent = opts.fontEmbedCSS;
+          clonedDoc.head.appendChild(style);
+        }
         const clonedWrapper = clonedDoc.getElementById('print-sheet') as HTMLElement | null;
         if (clonedWrapper) {
           clonedWrapper.style.left = '0';
@@ -161,6 +198,7 @@ async function renderWithHtml2Canvas(target: HTMLElement, opts: CaptureOptions):
     return canvas;
   } finally {
     if (restoreWrapper) restoreWrapper();
+    fontStyle?.remove();
   }
 }
 
@@ -171,22 +209,30 @@ async function renderWithHtml2Canvas(target: HTMLElement, opts: CaptureOptions):
 async function renderSheet(opts: CaptureOptions): Promise<HTMLCanvasElement> {
   const target = getSheetTarget();
 
-  // Ensure fonts are ready
-  if (document.fonts?.ready) {
-    try {
-      await document.fonts.ready;
-    } catch {
-      // ignore
-    }
-  }
-
+  // Load every face the sheet uses, then capture with those exact files inlined.
+  await ensureSheetFontsLoaded(target);
   await waitForImages(target);
 
+  const fontEmbedCSS = await getFontEmbedCss(target);
+  if (!fontEmbedCSS) {
+    console.warn(
+      '[export] no font files could be embedded — the download may fall back to a system font.',
+    );
+  }
+  const renderOpts: RenderOptions = { ...opts, fontEmbedCSS: fontEmbedCSS || undefined };
+
+  // Pin the line breaks to the ones on screen: the capture lays the text out
+  // again, and without this the rasterized copy may wrap on a different word.
+  const restoreBreaks = freezeLineBreaks(target);
   try {
-    return await renderWithBrowser(target, opts);
-  } catch (err) {
-    console.warn('[export] browser rasterization failed — falling back to html2canvas:', err);
-    return await renderWithHtml2Canvas(target, opts);
+    try {
+      return await renderWithBrowser(target, renderOpts);
+    } catch (err) {
+      console.warn('[export] browser rasterization failed — falling back to html2canvas:', err);
+      return await renderWithHtml2Canvas(target, renderOpts);
+    }
+  } finally {
+    restoreBreaks();
   }
 }
 

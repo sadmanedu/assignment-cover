@@ -1,4 +1,7 @@
 @import "tailwindcss";
+/* Self-hosted Inter / Saira Semi Condensed / Anek Bangla. Same-origin files, so
+   the preview and the PNG/PDF capture always use identical glyph metrics. */
+@import "./fonts.css";
 
 html,
 body,

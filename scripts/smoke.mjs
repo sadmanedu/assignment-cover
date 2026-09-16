@@ -1,6 +1,24 @@
 /* Smoke test: render the app in jsdom via Vite's module loader and check key markup. */
+import { readFileSync } from 'node:fs';
 import { createServer } from 'vite';
 import { JSDOM } from 'jsdom';
+
+const read = (path) => readFileSync(new URL(`../${path}`, import.meta.url), 'utf8');
+
+/* Guards for the export fidelity fixes (fonts + line breaks in PNG/PDF). */
+const fontCss = read('src/fonts.css');
+const exporters = read('src/lib/exporters.ts');
+const html = read('index.html');
+const staticChecks = [
+  ['fonts are self-hosted (no Google Fonts link)', !html.includes('fonts.googleapis.com')],
+  ['fonts.css declares Inter', fontCss.includes("font-family: 'Inter'")],
+  ['fonts.css declares Saira Semi Condensed', fontCss.includes("font-family: 'Saira Semi Condensed'")],
+  ['fonts.css declares Anek Bangla', fontCss.includes("font-family: 'Anek Bangla'")],
+  ['fonts.css keeps per-glyph subsetting', /unicode-range:/.test(fontCss)],
+  ['exports embed font files', exporters.includes('fontEmbedCSS')],
+  ['exports pin preview line breaks', exporters.includes('freezeLineBreaks')],
+  ['exports load every face first', exporters.includes('ensureSheetFontsLoaded')],
+];
 
 const dom = new JSDOM('<!doctype html><html><body><div id="root"></div></body></html>', {
   url: 'http://localhost:5173/',
@@ -32,6 +50,7 @@ try {
   const root = dom.window.document.getElementById('root');
   const html = root.innerHTML;
   const checks = [
+    ...staticChecks,
     ['app header rendered', html.includes('Nexora Cover Design')],
     ['university name on sheet', html.includes('JAGANNATH UNIVERSITY, DHAKA')],
     [
