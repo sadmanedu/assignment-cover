@@ -10,7 +10,6 @@ import { formatDateLong, hexDarken, ordinal } from '../lib/format';
 const GRAY = '#6b7280';
 const DARK = '#111827';
 const MID = '#374151';
-const FAINT = '#9ca3af';
 
 function val(v: string, fallback = '—'): string {
   return v.trim() ? v : fallback;
@@ -305,10 +304,6 @@ export function Sheet(props: SheetProps) {
             <span style={{ color: GRAY }}>Date of Submission: </span>
             <span style={{ fontWeight: 700 }}>{formatDateLong(submissionDate)}</span>
           </div>
-        </div>
-        {/* Small footer mark */}
-        <div style={{ marginTop: '4mm', fontSize: '7.5pt', letterSpacing: '1.5px', color: FAINT }}>
-          {universityName.trim().toUpperCase()}
         </div>
       </div>
     </div>

@@ -41,6 +41,8 @@ try {
     ['department block', html.includes('Department of Islamic History and Culture')],
     ['course code default', html.includes('Course code:') && html.includes('2102')],
     ['instructor default', html.includes('Dr. Kamal Hossain')],
+    ['student id default', html.includes('B-2401040')],
+    ['session default', html.includes('2024-25')],
     ['submitted-to label', html.toLowerCase().includes('submitted to')],
     [
       'assignment title before submitted-to (on sheet)',
