@@ -186,6 +186,7 @@ export function Sheet(props: SheetProps) {
         {/* Logo */}
         <img
           src={logo}
+          crossOrigin="anonymous"
           alt="Institutional logo"
           style={{
             display: 'block',
