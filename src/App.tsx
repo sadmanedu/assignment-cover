@@ -93,7 +93,7 @@ export default function App() {
 
       {/*
         Off-screen, unscaled copy of the sheet used as the export/print source,
-        so html2canvas captures exact 1:1 A4 pixels and @media print shows only this.
+        so exports rasterize exact 1:1 A4 pixels and @media print shows only this.
       */}
       <div id="print-sheet" className="offscreen-sheet" aria-hidden="true">
         <Sheet {...cover} emblemUrl={emblemUrl} />

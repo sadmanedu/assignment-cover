@@ -46,9 +46,11 @@ All state lives in a [Zustand](https://zustand.docs.pmnd.rs/) store and updates 
 - **Phones / tablets**: single-pane with a bottom **Details ⇄ Preview** tab bar, collapsible form sections (accordion headers), a wrapping export toolbar, and enlarged touch targets. The preview auto-fits the smaller viewport and re-fits when the tab is reopened.
 
 ### 4. Export, storage & utilities
-- **PDF** — jsPDF + html2canvas: captures an off-screen 1:1 copy of the sheet (2.5× supersampled ≈ 254 dpi) into a true A4 page at **100% scale**, zero extra margins.
-- **PNG** — same capture, downloaded as a ~254 dpi PNG.
+- **PDF** — jsPDF: captures an off-screen 1:1 copy of the sheet (2× supersampled ≈ 192 dpi) into a true A4 page at **100% scale**, zero extra margins.
+- **PNG** — same capture, downloaded as a ~192 dpi PNG.
 - **Print** — optimized `@media print` stylesheet (A4, `@page margin: 0`, only the sheet is visible) → print at 100% scale with default margins.
+
+> **Previews and downloads are rendered by the same engine.** Exports serialize the live sheet into an SVG `<foreignObject>` (`html-to-image`) and rasterize it with the browser's own layout/paint code, so text position, spacing, rules and dividers in a downloaded PNG/PDF are identical to the on-screen preview. `html2canvas` remains only as a fallback if that rasterization fails.
 - **Save / Load** — JSON persistence to `localStorage`.
 - **Copy Details** — plain-text summary of every field to the clipboard.
 - **Reset** — restores all defaults.
@@ -67,7 +69,7 @@ src/
     ui.tsx                 # Section / Field / Seg / Toast primitives
   lib/
     emblem.ts              # SVG academic-emblem generator (accent-tinted data URL)
-    exporters.ts           # html2canvas → PNG / jsPDF → A4 PDF (lazy-loaded)
+    exporters.ts           # html-to-image (browser rasterizer) → PNG / jsPDF → A4 PDF (lazy-loaded)
     format.ts              # ordinals, dates, clipboard, color math
     toast.ts               # tiny toast store
 ```

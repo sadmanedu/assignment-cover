@@ -1,7 +1,15 @@
 import html2canvas from 'html2canvas';
+import { toCanvas } from 'html-to-image';
 import { jsPDF } from 'jspdf';
 import { BACKGROUNDS } from '../constants';
 import type { BackgroundKey } from '../types';
+
+/** Supersample factor. The sheet is 793.7 CSS px wide (210 mm @ 96 dpi), so 2× ≈ 192 dpi. */
+const SCALE = 2;
+
+interface CaptureOptions {
+  backgroundKey: BackgroundKey;
+}
 
 function getSheetTarget(): HTMLElement {
   const wrapper = document.getElementById('print-sheet');
@@ -15,10 +23,6 @@ function getSheetTarget(): HTMLElement {
 
 function getWrapper(): HTMLElement | null {
   return document.getElementById('print-sheet');
-}
-
-interface CaptureOptions {
-  backgroundKey: BackgroundKey;
 }
 
 async function waitForImages(root: HTMLElement): Promise<void> {
@@ -37,23 +41,46 @@ async function waitForImages(root: HTMLElement): Promise<void> {
   );
 }
 
-async function capture(opts: CaptureOptions): Promise<HTMLCanvasElement> {
-  const target = getSheetTarget();
-  const wrapper = getWrapper();
+/* ------------------------------------------------------------------ */
+/*  Primary renderer — the browser's own layout & paint engine        */
+/* ------------------------------------------------------------------ */
 
-  // Ensure fonts are ready
-  if (document.fonts?.ready) {
-    try {
-      await document.fonts.ready;
-    } catch {
-      // ignore
-    }
+/**
+ * Rasterize the sheet by serializing it into an SVG `<foreignObject>` and letting
+ * the browser draw it into a canvas — i.e. the exact same engine that renders the
+ * live preview, so the download is a faithful copy of what the user sees.
+ *
+ * This replaced html2canvas as the primary renderer: html2canvas re-implements
+ * layout and text baselines, and it painted text runs below their real position —
+ * which left the university name sitting on top of the accent rule drawn under it,
+ * with the preview's gap gone. Re-using the preview's own engine for export makes
+ * that class of drift impossible.
+ */
+async function renderWithBrowser(target: HTMLElement, opts: CaptureOptions): Promise<HTMLCanvasElement> {
+  const canvas = await toCanvas(target, {
+    pixelRatio: SCALE,
+    backgroundColor: BACKGROUNDS[opts.backgroundKey].solid,
+    // Fonts & images are already in the HTTP cache — never bust it, otherwise an
+    // export made while offline could silently fall back to a system font.
+    cacheBust: false,
+  });
+  if (!canvas.width || !canvas.height) {
+    throw new Error('Rasterization produced an empty image');
   }
+  return canvas;
+}
 
-  await waitForImages(target);
+/* ------------------------------------------------------------------ */
+/*  Fallback renderer — html2canvas                                   */
+/* ------------------------------------------------------------------ */
 
-  // Small delay to let layout settle (especially after logo upload)
-  await new Promise((r) => setTimeout(r, 80));
+/**
+ * Used only if the browser rasterization above fails, so a download is always
+ * produced. html2canvas paints text slightly lower than the browser does, so
+ * this path is deliberately the exception, never the default.
+ */
+async function renderWithHtml2Canvas(target: HTMLElement, opts: CaptureOptions): Promise<HTMLCanvasElement> {
+  const wrapper = getWrapper();
 
   // Temporarily make the wrapper visible on-screen for html2canvas.
   // html2canvas can struggle with elements far off-screen (left:-220vw) or with z-index:-10.
@@ -99,7 +126,7 @@ async function capture(opts: CaptureOptions): Promise<HTMLCanvasElement> {
 
   try {
     const canvas = await html2canvas(target, {
-      scale: 2,
+      scale: SCALE,
       backgroundColor: BACKGROUNDS[opts.backgroundKey].solid,
       useCORS: true,
       allowTaint: false,
@@ -137,6 +164,32 @@ async function capture(opts: CaptureOptions): Promise<HTMLCanvasElement> {
   }
 }
 
+/* ------------------------------------------------------------------ */
+/*  Shared capture pipeline                                            */
+/* ------------------------------------------------------------------ */
+
+async function renderSheet(opts: CaptureOptions): Promise<HTMLCanvasElement> {
+  const target = getSheetTarget();
+
+  // Ensure fonts are ready
+  if (document.fonts?.ready) {
+    try {
+      await document.fonts.ready;
+    } catch {
+      // ignore
+    }
+  }
+
+  await waitForImages(target);
+
+  try {
+    return await renderWithBrowser(target, opts);
+  } catch (err) {
+    console.warn('[export] browser rasterization failed — falling back to html2canvas:', err);
+    return await renderWithHtml2Canvas(target, opts);
+  }
+}
+
 function downloadBlob(blob: Blob, filename: string): void {
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
@@ -171,9 +224,9 @@ async function canvasToBlob(canvas: HTMLCanvasElement, type: string, quality?: n
   return await response.blob();
 }
 
-/** Render the off-screen A4 sheet to a PNG download (~200 dpi). */
+/** Render the off-screen A4 sheet to a PNG download (~192 dpi). */
 export async function exportPng(opts: CaptureOptions): Promise<void> {
-  const canvas = await capture(opts);
+  const canvas = await renderSheet(opts);
   let blob: Blob;
   try {
     blob = await canvasToBlob(canvas, 'image/png');
@@ -186,7 +239,7 @@ export async function exportPng(opts: CaptureOptions): Promise<void> {
 
 /** Render the off-screen A4 sheet into a true A4 (210×297mm) PDF at 100% scale. */
 export async function exportPdf(opts: CaptureOptions): Promise<void> {
-  const canvas = await capture(opts);
+  const canvas = await renderSheet(opts);
   let imgData: string;
   try {
     imgData = canvas.toDataURL('image/jpeg', 0.92);
