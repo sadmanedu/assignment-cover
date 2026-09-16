@@ -11,17 +11,18 @@ function todayISO(): string {
 
 export const DEFAULT_DATA: CoverData = {
   universityName: 'JAGANNATH UNIVERSITY, DHAKA',
-  department: 'Department of Computer Science & Engineering',
-  courseTitle: 'Data Structures and Algorithms',
-  courseCode: 'CSE 2203',
-  assignmentTitle: 'Design, Implementation and Analysis of Binary Search Trees',
+  department: 'Department of Islamic History and Culture',
+  courseTitle: '',
+  courseCode: '2102',
+  assignmentTitle: '',
   studentName: 'Md. Rahim Ahmed',
   studentId: '2021-123456-12',
   session: '2024',
   year: '2',
   semester: '4',
-  instructorName: 'Prof. Dr. Abu Bakar Siddique',
-  instructorDesignation: 'Professor, Department of CSE',
+  instructorName: 'Dr. Kamal Hossain',
+  instructorDesignation:
+    'Professor\nDepartment of Islamic History and Culture\nJagannath University, Dhaka',
   submissionDate: todayISO(),
 };
 
