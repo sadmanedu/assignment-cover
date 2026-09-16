@@ -57,7 +57,7 @@ export function PreviewPanel({ mobileVisible }: { mobileVisible: boolean }) {
     setBusy(kind);
     try {
       await document.fonts.ready;
-      // Lazy-load the heavy export stack (html2canvas + jsPDF) on demand.
+      // Lazy-load the heavy export stack (rasterizer + jsPDF) on demand.
       const { exportPdf, exportPng } = await import('../lib/exporters');
       if (kind === 'png') await exportPng({ backgroundKey: cover.backgroundKey });
       else await exportPdf({ backgroundKey: cover.backgroundKey });
