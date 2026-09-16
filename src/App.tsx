@@ -49,11 +49,11 @@ export default function App() {
       {/* Header */}
       <header className="flex h-14 shrink-0 items-center gap-2.5 border-b border-slate-200 bg-white px-3 sm:gap-3 sm:px-5">
         <div className="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-blue-900 text-sm font-black text-white">
-          AC
+          N
         </div>
         <div className="min-w-0">
           <h1 className="truncate text-sm font-bold leading-tight text-slate-800">
-            Assignment Cover Studio
+            Nexora Cover Design
           </h1>
           <p className="hidden truncate text-[11px] leading-tight text-slate-500 min-[420px]:block">
             Live A4 cover designer · {cover.universityName || 'JAGANNATH UNIVERSITY, DHAKA'}

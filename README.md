@@ -1,4 +1,4 @@
-# Assignment Cover Studio
+# Nexora Cover Design
 
 A live A4 assignment cover page designer — built for **JAGANNATH UNIVERSITY, DHAKA** covers, but fully generic.
 

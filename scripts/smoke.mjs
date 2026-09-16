@@ -32,7 +32,7 @@ try {
   const root = dom.window.document.getElementById('root');
   const html = root.innerHTML;
   const checks = [
-    ['app header rendered', html.includes('Assignment Cover Studio')],
+    ['app header rendered', html.includes('Nexora Cover Design')],
     ['university name on sheet', html.includes('JAGANNATH UNIVERSITY, DHAKA')],
     [
       'logo above university name (on sheet)',
