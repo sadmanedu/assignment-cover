@@ -416,6 +416,28 @@ export function ControlsPanel({ logoUrl, mobileVisible }: { logoUrl: string; mob
         </div>
       </div>
 
+      {/* ---------- Submitted To / By arrangement — pinned to the top of the
+     Details tab, right before the academic details ---------- */}
+      <Section title="Submitted To / By" icon="🧱" note="how the panels sit">
+        <div className="flex gap-1.5">
+          {SUBMIT_LAYOUT_OPTIONS.map((o) => (
+            <button
+              key={o.key}
+              type="button"
+              onClick={() => set({ submitLayout: o.key })}
+              className={`opt flex-1 p-1 ${cover.submitLayout === o.key ? 'opt-on' : 'opt-off'}`}
+            >
+              <span className="block h-9 w-full overflow-hidden rounded border border-slate-200 bg-white">
+                <SubmitLayoutSample kind={o.key} accent={accent} />
+              </span>
+              <span className="opt-label mt-0.5">
+                {o.label} <span className="font-normal text-slate-400">· {o.hint}</span>
+              </span>
+            </button>
+          ))}
+        </div>
+      </Section>
+
       {/* ---------- Academic ---------- */}
       <Section title="Academic Details" icon="🎓" note="top of the cover" badge={<CountBadge filled={counts.academic} total={totals.academic} />}>
         <FieldRow>
@@ -633,9 +655,7 @@ export function ControlsPanel({ logoUrl, mobileVisible }: { logoUrl: string; mob
           title="Fine-tune type & layout"
           summary={`${FONT_OPTIONS.find((f) => f.key === cover.fontKey)?.label ?? 'Inter'} · ${
             DIVIDER_OPTIONS.find((d) => d.key === cover.dividerStyle)?.label ?? 'Diamond'
-          } · ${Math.round(cover.contentScale * 100)}% · ${
-            cover.submitLayout === 'columns' ? 'Two columns' : 'Stacked'
-          }`}
+          } · ${Math.round(cover.contentScale * 100)}%`}
         >
           <div>
             <span className="field-label">Typography</span>
@@ -722,26 +742,6 @@ export function ControlsPanel({ logoUrl, mobileVisible }: { logoUrl: string; mob
             )}
           </div>
 
-          <div>
-            <span className="field-label">Submitted To / By</span>
-            <div className="flex gap-1.5">
-              {SUBMIT_LAYOUT_OPTIONS.map((o) => (
-                <button
-                  key={o.key}
-                  type="button"
-                  onClick={() => set({ submitLayout: o.key })}
-                  className={`opt flex-1 p-1 ${cover.submitLayout === o.key ? 'opt-on' : 'opt-off'}`}
-                >
-                  <span className="block h-9 w-full overflow-hidden rounded border border-slate-200 bg-white">
-                    <SubmitLayoutSample kind={o.key} accent={accent} />
-                  </span>
-                  <span className="opt-label mt-0.5">
-                    {o.label} <span className="font-normal text-slate-400">· {o.hint}</span>
-                  </span>
-                </button>
-              ))}
-            </div>
-          </div>
         </Disclosure>
       </Section>
 
