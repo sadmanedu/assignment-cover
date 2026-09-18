@@ -20,7 +20,7 @@ function todayISO(): string {
 export const DEFAULT_DATA: CoverData = {
   universityName: 'JAGANNATH UNIVERSITY, DHAKA',
   department: 'Department of Islamic History and Culture',
-  courseTitle: '',
+  courseTitle: 'Prosno dile lekhi tai mone thakena',
   courseCode: '2102',
   assignmentTitle: '',
   studentName: 'Md. Rahim Ahmed',
@@ -41,7 +41,7 @@ export const DEFAULT_SETTINGS: CoverSettings = {
   accentColor: '#1e3a8a',
   borderStyle: 'double',
   dividerStyle: 'diamond',
-  submitLayout: 'stacked',
+  submitLayout: 'columns',
   logoDataUrl: DEFAULT_LOGO_URL,
   logoShape: 'normal',
   logoSize: 36,

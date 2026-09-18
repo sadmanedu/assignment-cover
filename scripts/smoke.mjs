@@ -29,7 +29,8 @@ const staticChecks = [
   ['divider choice is persisted', /'dividerStyle'/.test(read('src/store.ts'))],
   ['submit layout is persisted', /'submitLayout'/.test(read('src/store.ts'))],
   ['two submit layouts defined', (read('src/constants.ts').match(/SUBMIT_LAYOUT_OPTIONS[\s\S]*?\n\];/)?.[0].match(/key: '/g) ?? []).length === 2],
-  ['stacked is the default submit layout', /submitLayout:\s*'stacked'/.test(read('src/constants.ts'))],
+  ['two columns is the default submit layout', /submitLayout:\s*'columns'/.test(read('src/constants.ts'))],
+  ['default course title is set', /courseTitle:\s*'Prosno dile lekhi tai mone thakena'/.test(read('src/constants.ts'))],
   ['panel explains itself (readiness + help)', /required details/.test(read('src/components/ControlsPanel.tsx')) && /How this panel works/.test(read('src/components/ControlsPanel.tsx'))],
   ['readiness ignores optional fields', /REQUIRED = \{/.test(read('src/components/ControlsPanel.tsx')) && /OPTIONAL = \{/.test(read('src/components/ControlsPanel.tsx'))],
   ['fields are grouped in compact rows', /export function FieldRow/.test(read('src/components/ui.tsx'))],
@@ -88,7 +89,13 @@ try {
       html.lastIndexOf('/jnu-logo.png') < html.lastIndexOf('JAGANNATH UNIVERSITY, DHAKA'),
     ],
     ['department block', html.includes('Department of Islamic History and Culture')],
+    ['course title default on sheet', html.includes('Course name:') && html.includes('Prosno dile lekhi tai mone thakena')],
     ['course code default', html.includes('Course code:') && html.includes('2102')],
+    [
+      'submit layout picker is at the top of the panel',
+      html.includes('Two Columns') && html.indexOf('Two Columns') < html.indexOf('Academic Details'),
+    ],
+    ['default preview shows the two-column arrangement', html.includes('data-parties="columns"')],
     ['instructor default', html.includes('Dr. Kamal Hossain')],
     ['student id default', html.includes('B-2401040')],
     ['session default', html.includes('2024-25')],
@@ -297,7 +304,7 @@ try {
       console.log(`${ok ? 'PASS' : 'FAIL'}  ${name}`);
       if (!ok) failed = true;
     }
-    useCover.getState().set({ submitLayout: 'stacked' });
+    useCover.getState().set({ submitLayout: 'columns' });
   } catch (err) {
     console.error('DESIGN CHECK ERROR:', err);
     failed = true;

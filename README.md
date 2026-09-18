@@ -27,7 +27,7 @@ npm run typecheck
 - **Academic details** — University name, Department, Course title, Course code, Assignment/Report title.
 - **Student details** — Name, ID/Roll number, Session, Year, Semester (numeric values auto-ordinal: `2` → `2nd`).
 - **Faculty details** — Instructor name (“Submitted To”) and designation. Designation is multi-line: press Enter (or type a literal `\n`) and the cover renders the break on the next line.
-- **Submitted To / By layout** — choose how the two panels sit: **Stacked** (To above By, separated by a two-line gap — the default) or **Two Columns** (To on the left, By on the right — left-aligned, sitting a little lower down the cover, and centred as a group so the margin between the text and the page border is the same on both sides). Each option has a mini-preview, the choice is saved with the cover, and both arrangements keep the section spacing of the original stacked design.
+- **Submitted To / By layout** — choose how the two panels sit: **Two Columns** (To on the left, By on the right — the default; left-aligned, sitting a little lower down the cover, and centred as a group so the margin between the text and the page border is the same on both sides) or **Stacked** (To above By, separated by a two-line gap). Each option has a mini-preview, the choice is saved with the cover, and both arrangements keep the section spacing of the original stacked design. The picker lives in its own section at the **top of the Details tab, right before Academic Details**.
 - **Metadata** — Submission date (rendered long-form: *10 September 2026*).
 
 All state lives in a [Zustand](https://zustand.docs.pmnd.rs/) store and updates the preview instantly.
@@ -44,7 +44,7 @@ All state lives in a [Zustand](https://zustand.docs.pmnd.rs/) store and updates 
 - **Help button** (`?`) next to the bar explains the whole panel on hover/focus: sections follow the cover from top to
   bottom, badges count filled fields, and the bar shows completeness.
 - **Compact rows** — related fields share a row on ≥640 px screens (one per row on phones for tap targets), the finer
-  controls (typeface, divider, text size, layout) live in a collapsed *Fine-tune type & layout* group whose header
+  controls (typeface, divider, text size) live in a collapsed *Fine-tune type & layout* group whose header
   summarises the current choices, and the panel is ~1080 px tall instead of ~2300 px.
 
 ### 2. Customization & styling engine
@@ -74,9 +74,9 @@ All state lives in a [Zustand](https://zustand.docs.pmnd.rs/) store and updates 
 The left panel is built to be read top-to-bottom in one pass:
 
 - **Readiness bar** — how many of the cover's details are filled, with a progress bar. Each section header repeats the count for its own fields (or **done**), so nothing can be missed without being visible.
-- **Sections map to the cover** — *Academic Details* (logo, university name, title), *Student Details* (the **Submitted By** block), *Submitted To* (the faculty block), *Look & Styling*, *Logo*, *Save & Export*; each header says which part of the sheet it edits.
+- **Sections map to the cover** — *Submitted To / By* (the panel arrangement, at the very top), *Academic Details* (logo, university name, title), *Student Details* (the **Submitted By** block), *Submitted To* (the faculty block), *Look & Styling*, *Logo*, *Save & Export*; each header says which part of the sheet it edits.
 - **Optional fields are labelled** — Course Title, Course Code and ID/Roll are marked `optional` because the cover simply leaves that line out when they are empty.
-- **Everything fits** — one field per row on phones, two or three per row from 640 px up, `Enter = new line` hints on the two multi-line fields, and a single **Fine-tune type & layout** disclosure holding typography, divider, content size and the Submitted To/By arrangement (its header summarises the current choices). Logo and Save/Export are collapsed too — the whole panel is about half the height it used to be (2327 → 1109 px on desktop, 2492 → 1661 px on a phone), so the everyday fields fit without scrolling.
+- **Everything fits** — one field per row on phones, two or three per row from 640 px up, `Enter = new line` hints on the two multi-line fields, and a single **Fine-tune type & layout** disclosure holding typography, divider and content size (its header summarises the current choices). The Submitted To/By arrangement sits in its own open section at the top of the panel, before Academic Details, so the layout is one glance away. Logo and Save/Export are collapsed too — the whole panel is about half the height it used to be (2327 → 1109 px on desktop, 2492 → 1661 px on a phone), so the everyday fields fit without scrolling.
 
 ### Responsive layout
 - **Desktop (lg+)**: split screen — form controls left, live preview right.
