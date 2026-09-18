@@ -41,9 +41,12 @@ All state lives in a [Zustand](https://zustand.docs.pmnd.rs/) store and updates 
 - **Logo customization** — official JNU crest by default; upload any image (PNG/JPG/SVG, ≤ 2.5 MB), shape toggle (*Normal* / *Circular*), size slider (24–60 mm). A generated accent-tinted academic emblem serves as the fallback.
 - **Typography & background** — Modern Sans (Inter, default), Formal (Palatino), Saira Semi Condensed; backgrounds: Pure White, Off-White, Cream, Light Gray, Linen Texture. **Anek Bangla** is the built-in Bengali font: every stack falls back to it per-glyph, so Bengali text (university name, titles…) renders in Anek Bangla while English stays in the selected Latin font. Only light Anek Bangla weights (300–500) are loaded, so Bengali headings render at Medium — visibly lighter than the bold Latin headings. All three families are **self-hosted** (`src/fonts.css`, files from `@fontsource/*`) — the app makes no network request to a font CDN, and the subsetting behaves exactly as Google Fonts' (`unicode-range` per face).
 
-- **Divider** — the rule used between the cover's blocks (and above the date): *Hairline* (default), *Dashed*,
-  *Double Rule*, *Diamond*, *Three Dots*, *Accent Bar*, *Fade* (accent gradient) and *None*, each with a mini-preview.
-  Like the borders, all styles share one footprint, so switching only changes the look — never the layout.
+- **Divider** — the cover has exactly one rule: the one under the university name. This control chooses its style —
+  *Diamond* (default: line—diamond—line), *Hairline*, *Dashed*, *Double Rule*, *Three Dots*, *Accent Bar*,
+  *Fade* (accent gradient) or *None* for no rule at all. Each option has a mini-preview. The rule belongs to the fixed
+  header (it does not scale with the content size) and every style shares one 66 mm footprint, so switching only
+  changes the look — never the layout. No other rules are drawn anywhere on the cover; the space the previous
+  rules occupied is folded into the block spacing, so the vertical rhythm is unchanged.
 - **Content size** — one slider (80–160 %, default **115 %**; 100 % is the design's own size) that scales the cover's body text as a group: Department line, course name/code, *An Assignment on*, the title, the *Submitted To* block (instructor + designation), the *Submitted By* block (name, ID, year/semester, session) and the hairline dividers and gaps between them. Every size in that block grows (or shrinks) by the same factor, so the block's internal proportions never change — the university header, its rule and the pinned submission date stay exactly where they are. Click the percentage badge to reset to 100 %. If the enlarged block no longer fits above the date — it pushes the pinned date out of its spot at the bottom of the page — an amber warning appears under the slider; lower the size or shorten the text.
 
 ### 3. Live A4 preview workspace

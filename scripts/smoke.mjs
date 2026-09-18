@@ -23,6 +23,7 @@ const staticChecks = [
   ['content size is persisted', /'contentScale'/.test(read('src/store.ts'))],
   ['content block is scaled', read('src/components/Sheet.tsx').includes('data-content-block')],
   ['default content size is 115%', /contentScale:\s*1\.15/.test(read('src/constants.ts'))],
+  ['default divider is the diamond name-rule', /dividerStyle:\s*'diamond'/.test(read('src/constants.ts'))],
   ['divider designs defined (8)', (read('src/constants.ts').match(/DIVIDER_OPTIONS[\s\S]*?\n\];/)?.[0].match(/key: '/g) ?? []).length === 8],
   ['border designs defined (9)', (read('src/constants.ts').match(/BORDER_OPTIONS[\s\S]*?\n\];/)?.[0].match(/key: '/g) ?? []).length === 9],
   ['divider choice is persisted', /'dividerStyle'/.test(read('src/store.ts'))],
@@ -133,34 +134,47 @@ try {
     const sheetHtml = () => dom.window.document.getElementById('print-sheet').innerHTML;
     const settle = () => new Promise((r) => setTimeout(r, 120));
 
+    const ruleHtml = () => dom.window.document.getElementById('print-sheet').innerHTML;
+    const blockHtml = () =>
+      dom.window.document.querySelector('#print-sheet [data-content-block]')?.innerHTML ?? '';
+
     useCover.getState().set({ dividerStyle: 'dots' });
     await settle();
-    const dots = sheetHtml();
+    const dots = ruleHtml();
     useCover.getState().set({ dividerStyle: 'fade' });
     await settle();
-    const fade = sheetHtml();
+    const fade = ruleHtml();
     useCover.getState().set({ dividerStyle: 'none' });
     await settle();
-    const none = sheetHtml();
+    const none = ruleHtml();
     useCover.getState().set({ dividerStyle: 'hairline' });
     await settle();
-    const hairline = sheetHtml();
+    const hairline = ruleHtml();
 
     useCover.getState().set({ borderStyle: 'corners' });
     await settle();
-    const corners = sheetHtml();
+    const corners = ruleHtml();
     useCover.getState().set({ borderStyle: 'stitched' });
     await settle();
-    const stitched = sheetHtml();
+    const stitched = ruleHtml();
+
+    useCover.getState().set({ dividerStyle: 'diamond' });
+    await settle();
+    const diamond = ruleHtml();
+    const countIn = (haystack, needle) => haystack.split(needle).length - 1;
 
     const designChecks = [
+      ['the cover has exactly one divider', countIn(diamond, 'data-divider') === 1],
+      ['that divider is the rule under the university name', /rotate\(45deg\)/.test(diamond.slice(diamond.indexOf('data-divider'), diamond.indexOf('data-content-block')))],
+      ['no divider inside the content block', countIn(blockHtml(), 'data-divider') === 0],
+      ['no rule is drawn between the blocks', !/rgb\(209, 213, 219\)/.test(blockHtml())],
+      ['the date block has no rule', countIn(none, 'data-divider') === 0],
       ['three-dot divider reaches the sheet', /border-radius:\s*50%/.test(dots)],
-      ['fade divider reaches the sheet', /linear-gradient/.test(fade)],
-      ['no-divider leaves the rule out', !/rgb\(209, 213, 219\)/.test(none)],
-      ['hairline is the default rule', /rgb\(209, 213, 219\)/.test(hairline)],
+      ['fade divider reaches the sheet exactly once', countIn(fade, 'linear-gradient') === 1],
+      ['hairline divider reaches the sheet', /height:\s*1px/.test(hairline)],
       ['corner-mark border reaches the sheet', /border-top-width:\s*3pt/.test(corners)],
       ['stitched border reaches the sheet', /1\.6pt dashed/.test(stitched)],
-      ['divider choice is stored in the save file', pickPersistable(useCover.getState()).settings.dividerStyle === 'hairline'],
+      ['divider choice is stored in the save file', pickPersistable(useCover.getState()).settings.dividerStyle === 'diamond'],
     ];
     for (const [name, ok] of designChecks) {
       console.log(`${ok ? 'PASS' : 'FAIL'}  ${name}`);

@@ -32,7 +32,7 @@ export const DEFAULT_LOGO_URL = '/jnu-logo.png';
 export const DEFAULT_SETTINGS: CoverSettings = {
   accentColor: '#1e3a8a',
   borderStyle: 'double',
-  dividerStyle: 'hairline',
+  dividerStyle: 'diamond',
   logoDataUrl: DEFAULT_LOGO_URL,
   logoShape: 'normal',
   logoSize: 36,

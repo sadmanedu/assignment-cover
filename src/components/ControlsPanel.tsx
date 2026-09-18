@@ -511,6 +511,9 @@ export function ControlsPanel({ logoUrl, mobileVisible }: { logoUrl: string; mob
               </button>
             ))}
           </div>
+          <p className="mt-1 text-[11px] leading-snug text-slate-400">
+            The rule under the university name — the only divider on the cover.
+          </p>
         </div>
 
         <div>

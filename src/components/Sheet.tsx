@@ -124,20 +124,20 @@ function Divider({
   }
 }
 
-/** Accent rule: line — diamond — line, under the university name. */
-function NameRule({ accent }: { accent: string }) {
+/**
+ * The cover's only rule: it sits under the university name and takes whichever
+ * style the panel selected. It is part of the fixed header, so it never scales
+ * with the content size and keeps the same 66 mm footprint — the `diamond` style
+ * is the original line—diamond—line drawing.
+ */
+function NameRule({ kind, accent }: { kind: DividerStyle; accent: string }) {
+  if (kind === 'none') return null;
   return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: '2mm', marginTop: '2.5mm' }}>
-      <div style={{ width: '30mm', height: '1.6pt', background: accent }} />
-      <div
-        style={{
-          width: '1.8mm',
-          height: '1.8mm',
-          background: accent,
-          transform: 'rotate(45deg)',
-        }}
-      />
-      <div style={{ width: '30mm', height: '1.6pt', background: accent }} />
+    <div
+      data-divider=""
+      style={{ display: 'flex', justifyContent: 'center', width: '100%', marginTop: '2.5mm' }}
+    >
+      <Divider kind={kind} accent={accent} width={66} top={0} />
     </div>
   );
 }
@@ -357,7 +357,7 @@ export function Sheet(props: SheetProps) {
         >
           {val(universityName, 'University Name')}
         </div>
-        <NameRule accent={accent} />
+        <NameRule kind={dividerStyle} accent={accent} />
 
         {/* ---------------------------------------------------------------- */}
         {/*  Scaled content block — department → session.                      */}
@@ -389,10 +389,8 @@ export function Sheet(props: SheetProps) {
             </div>
           )}
 
-          <Divider kind={dividerStyle} accent={accent} top={7} scale={scale} />
-
-          {/* Assignment title */}
-          <div style={{ marginTop: mm(6), fontSize: pt(10.5), fontStyle: 'italic', color: GRAY }}>
+          {/* Assignment title (the gap keeps the space the old rule occupied) */}
+          <div style={{ marginTop: mm(13), fontSize: pt(10.5), fontStyle: 'italic', color: GRAY }}>
             An Assignment on
           </div>
           <div
@@ -414,10 +412,8 @@ export function Sheet(props: SheetProps) {
             {val(assignmentTitle, 'Assignment Title')}
           </div>
 
-          <Divider kind={dividerStyle} accent={accent} top={7} scale={scale} />
-
           {/* Submitted To */}
-          <Label top={5} scale={scale}>Submitted To</Label>
+          <Label top={12} scale={scale}>Submitted To</Label>
           <div style={{ marginTop: mm(1.5), fontSize: pt(12), fontWeight: 700, color: DARK }}>
             {val(instructorName)}
           </div>
@@ -434,10 +430,8 @@ export function Sheet(props: SheetProps) {
             {val(instructorDesignation).replace(/\\n/g, '\n')}
           </div>
 
-          <Divider kind={dividerStyle} accent={accent} top={8} scale={scale} />
-
           {/* Submitted By */}
-          <Label top={5} scale={scale}>Submitted By</Label>
+          <Label top={13} scale={scale}>Submitted By</Label>
           <div style={{ marginTop: mm(1.5), fontSize: pt(12), fontWeight: 700, color: DARK }}>
             {val(studentName)}
           </div>
@@ -468,7 +462,6 @@ export function Sheet(props: SheetProps) {
             alignItems: 'center',
           }}
         >
-          <Divider kind={dividerStyle} accent={accent} width={90} top={0} />
           <div style={{ marginTop: '3mm', fontSize: '11pt', color: DARK }}>
             <span style={{ color: GRAY }}>Date of Submission: </span>
             <span style={{ fontWeight: 700 }}>{formatDateLong(submissionDate)}</span>
