@@ -418,7 +418,8 @@ export function Sheet(props: SheetProps) {
             style={{
               marginTop: mm(2),
               maxWidth: '150mm',
-              fontSize: pt(16),
+              // 13pt = 4px smaller than the original 16pt at 100% content size.
+              fontSize: pt(13),
               fontWeight: 800,
               lineHeight: 1.3,
               color: accent,

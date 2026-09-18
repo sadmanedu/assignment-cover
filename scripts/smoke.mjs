@@ -134,7 +134,7 @@ try {
     const hasStyle = (prop, value) =>
       new RegExp(`${prop.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}:\\s*${value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\s*[;"]`).test(scaled);
     const scaledChecks = [
-      ['content size scales the title (16pt → 24pt)', hasStyle('font-size', '24pt')],
+      ['content size scales the title (13pt → 19.5pt)', hasStyle('font-size', '19.5pt')],
       ['content size scales the department (12.5pt → 18.75pt)', hasStyle('font-size', '18.75pt')],
       ['content size scales the designation (10.5pt → 15.75pt)', hasStyle('font-size', '15.75pt')],
       ['content size scales the SUBMITTED TO label (8.5pt → 12.75pt)', hasStyle('font-size', '12.75pt')],
