@@ -38,6 +38,9 @@ const SETTING_KEYS: (keyof CoverSettings)[] = [
   'logoSize',
   'fontKey',
   'backgroundKey',
+  'dividerStyle',
+  'submitLayout',
+  'contentScale',
 ];
 
 /** Pick only persistable data/settings (drops actions and unknown fields). */

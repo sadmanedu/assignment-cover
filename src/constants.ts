@@ -1,4 +1,12 @@
-import type { BackgroundKey, BorderStyle, CoverData, CoverSettings, FontKey } from './types';
+import type {
+  BackgroundKey,
+  BorderStyle,
+  CoverData,
+  CoverSettings,
+  DividerStyle,
+  FontKey,
+  SubmitLayout,
+} from './types';
 
 /** A4 sheet metrics (96dpi screen px for a 210×297mm sheet). */
 export const A4 = { wMm: 210, hMm: 297, wPx: 793.7, hPx: 1122.5 } as const;
@@ -32,11 +40,14 @@ export const DEFAULT_LOGO_URL = '/jnu-logo.png';
 export const DEFAULT_SETTINGS: CoverSettings = {
   accentColor: '#1e3a8a',
   borderStyle: 'double',
+  dividerStyle: 'diamond',
+  submitLayout: 'stacked',
   logoDataUrl: DEFAULT_LOGO_URL,
   logoShape: 'normal',
   logoSize: 36,
   fontKey: 'sans',
   backgroundKey: 'white',
+  contentScale: 1.15,
 };
 
 export const ACCENT_PRESETS: { name: string; value: string }[] = [
@@ -54,9 +65,14 @@ export const ACCENT_PRESETS: { name: string; value: string }[] = [
  * CSS falls back per-glyph, so English/Latin always uses the primary font and
  * Anek Bangla only renders when actual Bengali text appears.
  *
- * Note: only light Anek Bangla weights (300–500) are loaded (see index.html).
+ * Note: only light Anek Bangla weights (300–500) are loaded (see src/fonts.css).
  * Headings request 700/800, so the browser clamps Bengali glyphs to the
  * lightest available face — deliberately lighter than the Latin weights.
+ *
+ * All three families are self-hosted, never fetched from a CDN: the PNG/PDF
+ * export re-renders the sheet inside an SVG, and only same-origin font files can
+ * be inlined into it — which is what keeps the download's fonts, and therefore
+ * its line breaks, identical to the preview.
  */
 export const FONT_STACKS: Record<FontKey, string> = {
   sans: `'Inter','Anek Bangla','Segoe UI',system-ui,-apple-system,sans-serif`,
@@ -73,8 +89,30 @@ export const FONT_OPTIONS: { key: FontKey; label: string; hint: string }[] = [
 export const BORDER_OPTIONS: { key: BorderStyle; label: string }[] = [
   { key: 'none', label: 'None' },
   { key: 'single', label: 'Single Thin' },
+  { key: 'bold', label: 'Single Bold' },
   { key: 'double', label: 'Double Classic' },
+  { key: 'inset', label: 'Classic Inset' },
   { key: 'decorative', label: 'Decorative' },
+  { key: 'corners', label: 'Corner Marks' },
+  { key: 'flourish', label: 'Flourish' },
+  { key: 'stitched', label: 'Stitched' },
+];
+
+/** Two ways to arrange the "Submitted To" / "Submitted By" panels. */
+export const SUBMIT_LAYOUT_OPTIONS: { key: SubmitLayout; label: string; hint: string }[] = [
+  { key: 'stacked', label: 'Stacked', hint: 'To above By' },
+  { key: 'columns', label: 'Two Columns', hint: 'To left, By right' },
+];
+
+export const DIVIDER_OPTIONS: { key: DividerStyle; label: string }[] = [
+  { key: 'hairline', label: 'Hairline' },
+  { key: 'dashed', label: 'Dashed' },
+  { key: 'double', label: 'Double Rule' },
+  { key: 'diamond', label: 'Diamond' },
+  { key: 'dots', label: 'Three Dots' },
+  { key: 'accent', label: 'Accent Bar' },
+  { key: 'fade', label: 'Fade' },
+  { key: 'none', label: 'None' },
 ];
 
 export const BACKGROUNDS: Record<
@@ -95,3 +133,12 @@ export const BACKGROUNDS: Record<
 
 export const LOGO_SIZE_MIN = 24;
 export const LOGO_SIZE_MAX = 60;
+
+/**
+ * Range for the "Content Size" control. The upper end is bounded by the page:
+ * the block scales gaps and rules along with the type, and on a 297 mm sheet the
+ * content still has to clear the pinned submission date.
+ */
+export const CONTENT_SCALE_MIN = 0.8;
+export const CONTENT_SCALE_MAX = 1.6;
+export const CONTENT_SCALE_STEP = 0.05;

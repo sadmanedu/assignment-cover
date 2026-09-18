@@ -27,19 +27,56 @@ npm run typecheck
 - **Academic details** — University name, Department, Course title, Course code, Assignment/Report title.
 - **Student details** — Name, ID/Roll number, Session, Year, Semester (numeric values auto-ordinal: `2` → `2nd`).
 - **Faculty details** — Instructor name (“Submitted To”) and designation. Designation is multi-line: press Enter (or type a literal `\n`) and the cover renders the break on the next line.
+- **Submitted To / By layout** — choose how the two panels sit: **Stacked** (To above By, separated by a two-line gap — the default) or **Two Columns** (To on the left, By on the right — left-aligned, sitting a little lower down the cover, and centred as a group so the margin between the text and the page border is the same on both sides). Each option has a mini-preview, the choice is saved with the cover, and both arrangements keep the section spacing of the original stacked design.
 - **Metadata** — Submission date (rendered long-form: *10 September 2026*).
 
 All state lives in a [Zustand](https://zustand.docs.pmnd.rs/) store and updates the preview instantly.
 
+#### The details panel explains itself
+
+- **Readiness bar** (top of the panel): counts the **required** details — `6 of 7 required details` — and turns into
+  **Cover ready** as soon as they are in. Optional fields never hold it back; when some are empty the line simply
+  says how many are skipped, so the percentage can't look stuck.
+- **Per-section badges** — every section header counts its own filled fields (`3/5`, `done`), and each header says
+  which part of the cover it edits (`top of the cover`, `Submitted By block`, `Submitted To block`, `accent & frames`).
+- **`optional` tags** on the fields whose line disappears from the cover when empty, plus inline hints
+  (`Enter = new line`, `2 = 2nd`, `prints at the bottom`), so the meaning of each control is visible without guessing.
+- **Help button** (`?`) next to the bar explains the whole panel on hover/focus: sections follow the cover from top to
+  bottom, badges count filled fields, and the bar shows completeness.
+- **Compact rows** — related fields share a row on ≥640 px screens (one per row on phones for tap targets), the finer
+  controls (typeface, divider, text size, layout) live in a collapsed *Fine-tune type & layout* group whose header
+  summarises the current choices, and the panel is ~1080 px tall instead of ~2300 px.
+
 ### 2. Customization & styling engine
 - **Theme & accent colors** — 7 presets + custom color picker; dynamically re-tints borders, headers, the title, the rules, and the default emblem.
-- **Border styles** — *None*, *Single Thin*, *Double Classic*, *Decorative* (double frame + inner hairline + corner ornaments), with live mini-previews.
+- **Border styles** — nine frames, each with a live mini-preview: *None*, *Single Thin*, *Single Bold*,
+  *Stitched* (dashed accent rule), *Double Classic*, *Classic Inset* (hairline outside, heavier line set in),
+  *Decorative* (double frame + inner hairline + corner diamonds), *Corner Marks* (four bracketed corners, no
+  continuous frame) and *Flourish* (hairline frame with a diamond at the middle of each side). Every frame is
+  drawn inside the same 8 mm print area, so switching styles never moves the cover's content.
 - **Logo customization** — official JNU crest by default; upload any image (PNG/JPG/SVG, ≤ 2.5 MB), shape toggle (*Normal* / *Circular*), size slider (24–60 mm). A generated accent-tinted academic emblem serves as the fallback.
-- **Typography & background** — Modern Sans (Inter, default), Formal (Palatino), Saira Semi Condensed; backgrounds: Pure White, Off-White, Cream, Light Gray, Linen Texture. **Anek Bangla** is the built-in Bengali font: every stack falls back to it per-glyph, so Bengali text (university name, titles…) renders in Anek Bangla while English stays in the selected Latin font. Only light Anek Bangla weights (300–500) are loaded, so Bengali headings render at Medium — visibly lighter than the bold Latin headings.
+- **Typography & background** — Modern Sans (Inter, default), Formal (Palatino), Saira Semi Condensed; backgrounds: Pure White, Off-White, Cream, Light Gray, Linen Texture. **Anek Bangla** is the built-in Bengali font: every stack falls back to it per-glyph, so Bengali text (university name, titles…) renders in Anek Bangla while English stays in the selected Latin font. Only light Anek Bangla weights (300–500) are loaded, so Bengali headings render at Medium — visibly lighter than the bold Latin headings. All three families are **self-hosted** (`src/fonts.css`, files from `@fontsource/*`) — the app makes no network request to a font CDN, and the subsetting behaves exactly as Google Fonts' (`unicode-range` per face).
+
+- **Divider** — the cover has exactly one rule: the one under the university name. This control chooses its style —
+  *Diamond* (default: line—diamond—line), *Hairline*, *Dashed*, *Double Rule*, *Three Dots*, *Accent Bar*,
+  *Fade* (accent gradient) or *None* for no rule at all. Each option has a mini-preview. The rule belongs to the fixed
+  header (it does not scale with the content size) and every style shares one 66 mm footprint, so switching only
+  changes the look — never the layout. No other rules are drawn anywhere on the cover; the space the previous
+  rules occupied is folded into the block spacing, so the vertical rhythm is unchanged.
+- **Content size** — one slider (80–160 %, default **115 %**; 100 % is the design's own size) that scales the cover's body text as a group: Department line, course name/code, *An Assignment on*, the title, the *Submitted To* block (instructor + designation), the *Submitted By* block (name, ID, year/semester, session) and the hairline dividers and gaps between them. Every size in that block grows (or shrinks) by the same factor, so the block's internal proportions never change — the university header, its rule and the pinned submission date stay exactly where they are. Click the percentage badge to reset to 100 %. If the enlarged block no longer fits above the date — it pushes the pinned date out of its spot at the bottom of the page — an amber warning appears under the slider; lower the size or shorten the text.
 
 ### 3. Live A4 preview workspace
 - A true 210 × 297 mm sheet rendered 1:1 and scaled for the viewport.
 - Zoom controls **− / + / Fit** with percentage readout; auto-fits on window resize until you zoom manually.
+
+### The details panel
+
+The left panel is built to be read top-to-bottom in one pass:
+
+- **Readiness bar** — how many of the cover's details are filled, with a progress bar. Each section header repeats the count for its own fields (or **done**), so nothing can be missed without being visible.
+- **Sections map to the cover** — *Academic Details* (logo, university name, title), *Student Details* (the **Submitted By** block), *Submitted To* (the faculty block), *Look & Styling*, *Logo*, *Save & Export*; each header says which part of the sheet it edits.
+- **Optional fields are labelled** — Course Title, Course Code and ID/Roll are marked `optional` because the cover simply leaves that line out when they are empty.
+- **Everything fits** — one field per row on phones, two or three per row from 640 px up, `Enter = new line` hints on the two multi-line fields, and a single **Fine-tune type & layout** disclosure holding typography, divider, content size and the Submitted To/By arrangement (its header summarises the current choices). Logo and Save/Export are collapsed too — the whole panel is about half the height it used to be (2327 → 1109 px on desktop, 2492 → 1661 px on a phone), so the everyday fields fit without scrolling.
 
 ### Responsive layout
 - **Desktop (lg+)**: split screen — form controls left, live preview right.
@@ -51,9 +88,37 @@ All state lives in a [Zustand](https://zustand.docs.pmnd.rs/) store and updates 
 - **Print** — optimized `@media print` stylesheet (A4, `@page margin: 0`, only the sheet is visible) → print at 100% scale with default margins.
 
 > **Previews and downloads are rendered by the same engine.** Exports serialize the live sheet into an SVG `<foreignObject>` (`html-to-image`) and rasterize it with the browser's own layout/paint code, so text position, spacing, rules and dividers in a downloaded PNG/PDF are identical to the on-screen preview. `html2canvas` remains only as a fallback if that rasterization fails.
+
+#### Why the download keeps the preview's fonts (and line breaks)
+
+An SVG document has no access to the page's font cache, so every face the sheet
+uses has to travel *inside* the SVG. `html-to-image` tries to do that on its own,
+but it reads `document.styleSheets` — which throws `SecurityError` for a
+cross-origin stylesheet — and then re-downloads each font file at click time.
+When that re-download failed (offline, blocked CDN, slow/spotty network, a
+sandboxed iframe), the capture silently rendered in a **system** font: the
+download no longer matched the preview, and because the fallback has different
+metrics every paragraph re-flowed, so the **line breaks moved**. The export
+pipeline now closes both doors:
+
+1. **Fonts are self-hosted** (`src/fonts.css`), so the rules are same-origin and
+   readable, and the files are already in the HTTP cache.
+2. **Font files are inlined** as `data:` URLs before the capture
+   (`src/lib/fonts.ts`), so the rasterization needs *zero* network requests. Every
+   family of a stack is collected — CSS falls back per glyph, so Bengali runs are
+   painted by `Anek Bangla` (the second family) while Latin stays in `Inter`.
+   `createObjectURL`-style blob URLs are avoided deliberately: they survive in a
+   Chromium canvas but not reliably in the Safari/WebKit rasterizer.
+3. **Line breaks are pinned** to the ones on screen (`src/lib/freeze.ts`): the
+   export measures where the live preview wrapped each paragraph and writes those
+   breaks into the sheet for the duration of the capture. Screen text and
+   SVG-image text can round glyph advances differently, so this keeps a
+   boundary-line from wrapping on a different word in the download.
 - **Save / Load** — JSON persistence to `localStorage`.
 - **Copy Details** — plain-text summary of every field to the clipboard.
 - **Reset** — restores all defaults.
+
+Save files carry the whole setup — accent, border, divider, typography, logo, content size and all text — so a cover can be restored exactly.
 
 ## Project structure
 
@@ -70,12 +135,15 @@ src/
   lib/
     emblem.ts              # SVG academic-emblem generator (accent-tinted data URL)
     exporters.ts           # html-to-image (browser rasterizer) → PNG / jsPDF → A4 PDF (lazy-loaded)
+    fonts.ts               # waits for the sheet's faces, inlines them into the capture
+    freeze.ts              # pins the preview's line breaks into the export
     format.ts              # ordinals, dates, clipboard, color math
+  fonts.css                # self-hosted Inter / Saira Semi Condensed / Anek Bangla
     toast.ts               # tiny toast store
 ```
 
 ## Notes
 
 - The default logo is the **official JNU crest** (`public/jnu-logo.png`); upload any other institutional logo to replace it. If no logo is available, a generated accent-tinted academic emblem is used as fallback.
-- Preview fonts load from Google Fonts (Inter) with system fallbacks; exports rasterize whatever the browser rendered.
+- Fonts are self-hosted local files — the app works with no internet connection, and so do the exports.
 - Cover layout follows standard academic formatting: centered headers, structured *Submitted To / Submitted By* blocks, balanced whitespace, date pinned to the bottom.

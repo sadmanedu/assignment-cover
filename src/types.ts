@@ -1,4 +1,28 @@
-export type BorderStyle = 'none' | 'single' | 'double' | 'decorative';
+export type BorderStyle =
+  | 'none'
+  | 'single'
+  | 'bold'
+  | 'double'
+  | 'inset'
+  | 'decorative'
+  | 'corners'
+  | 'flourish'
+  | 'stitched';
+/**
+ * How the "Submitted To" and "Submitted By" panels sit on the cover:
+ * `stacked` puts them one above the other, `columns` puts To on the left and By
+ * on the right.
+ */
+export type SubmitLayout = 'stacked' | 'columns';
+export type DividerStyle =
+  | 'hairline'
+  | 'dashed'
+  | 'double'
+  | 'diamond'
+  | 'dots'
+  | 'accent'
+  | 'fade'
+  | 'none';
 export type LogoShape = 'normal' | 'circular';
 export type FontKey = 'sans' | 'formal' | 'saira';
 export type BackgroundKey = 'white' | 'offwhite' | 'cream' | 'gray' | 'linen';
@@ -22,11 +46,22 @@ export interface CoverData {
 export interface CoverSettings {
   accentColor: string;
   borderStyle: BorderStyle;
+  /** Hairline and the other rule styles used between the cover's blocks. */
+  dividerStyle: DividerStyle;
+  /** Stacked (one above the other) or two columns (To left, By right). */
+  submitLayout: SubmitLayout;
   logoDataUrl: string | null; // null → default generated emblem
   logoShape: LogoShape;
   logoSize: number; // mm
   fontKey: FontKey;
   backgroundKey: BackgroundKey;
+  /**
+   * Proportional scale (1 = 100%) for the body of the cover — department, course,
+   * title, and the Submitted To / Submitted By blocks. The logo, university name
+   * and submission date keep their size; everything inside the block scales
+   * together so the layout stays proportional.
+   */
+  contentScale: number;
 }
 
 export type SheetProps = CoverData & CoverSettings & { emblemUrl: string };
