@@ -319,19 +319,38 @@ export function ControlsPanel({ logoUrl, mobileVisible }: { logoUrl: string; mob
   const contentOverflow = useContentOverflow(cover);
 
   /* Completion per section — powers the header badges and the readiness bar, so a
-     first-time visitor can see at a glance what is still missing. */
+     first-time visitor can see at a glance what is still missing. Optional fields
+     (they simply disappear from the cover when empty) never hold the cover back:
+     the bar tracks the required ones only, and the optional gaps are called out
+     separately so the percentage cannot look "stuck". */
   const filledIn = (fields: (keyof typeof cover)[]) =>
     fields.filter((f) => String(cover[f] ?? '').trim() !== '').length;
+  const REQUIRED = {
+    academic: ['universityName', 'department', 'assignmentTitle'],
+    student: ['studentName', 'submissionDate'],
+    faculty: ['instructorName', 'instructorDesignation'],
+  } as const;
+  const OPTIONAL = {
+    academic: ['courseTitle', 'courseCode'],
+    student: ['studentId', 'session', 'year', 'semester'],
+    faculty: [],
+  } as const;
   const counts = {
-    academic: filledIn(['universityName', 'department', 'courseTitle', 'courseCode', 'assignmentTitle']),
-    student: filledIn(['studentName', 'studentId', 'session', 'year', 'semester', 'submissionDate']),
-    faculty: filledIn(['instructorName', 'instructorDesignation']),
+    academic: filledIn([...REQUIRED.academic, ...OPTIONAL.academic]),
+    student: filledIn([...REQUIRED.student, ...OPTIONAL.student]),
+    faculty: filledIn([...REQUIRED.faculty, ...OPTIONAL.faculty]),
   };
   const totals = { academic: 5, student: 6, faculty: 2 };
-  const filledFields = counts.academic + counts.student + counts.faculty;
-  const allFields = totals.academic + totals.student + totals.faculty;
-  const percent = Math.round((filledFields / allFields) * 100);
-  const ready = filledFields === allFields;
+
+  const filledRequired =
+    filledIn([...REQUIRED.academic]) + filledIn([...REQUIRED.student]) + filledIn([...REQUIRED.faculty]);
+  const totalRequired = REQUIRED.academic.length + REQUIRED.student.length + REQUIRED.faculty.length;
+  const filledOptional =
+    filledIn([...OPTIONAL.academic]) + filledIn([...OPTIONAL.student]) + filledIn([...OPTIONAL.faculty]);
+  const totalOptional = OPTIONAL.academic.length + OPTIONAL.student.length + OPTIONAL.faculty.length;
+  const percent = Math.round((filledRequired / totalRequired) * 100);
+  const ready = filledRequired === totalRequired;
+  const optionalLeft = totalOptional - filledOptional;
 
   const accent = cover.accentColor;
   const bgEntries = Object.entries(BACKGROUNDS) as [keyof typeof BACKGROUNDS, (typeof BACKGROUNDS)[keyof typeof BACKGROUNDS]][];
@@ -341,10 +360,10 @@ export function ControlsPanel({ logoUrl, mobileVisible }: { logoUrl: string; mob
       className={`${mobileVisible ? '' : 'hidden'} min-h-0 w-full flex-1 overflow-y-auto bg-white lg:block lg:w-[390px] lg:flex-1-none lg:shrink-0 lg:border-r lg:border-slate-200`}
     >
       {/* ---------- Readiness: what this panel does + what is still missing ---------- */}
-      <div className="border-b border-slate-200 bg-slate-50/80 px-3.5 py-2">
+      <div className="relative border-b border-slate-200 bg-slate-50/80 px-3.5 py-2">
         <div className="flex items-center gap-2">
           <span className="text-[11.5px] font-bold text-slate-700">
-            {ready ? 'Cover ready — all details filled' : `${filledFields} of ${allFields} details filled`}
+            {ready ? 'Cover ready' : `${filledRequired} of ${totalRequired} required details`}
           </span>
           <span className="flex-1" />
           <div className="h-1.5 w-24 overflow-hidden rounded-full bg-slate-200 sm:w-32">
@@ -357,14 +376,48 @@ export function ControlsPanel({ logoUrl, mobileVisible }: { logoUrl: string; mob
             {percent}%
           </span>
         </div>
-        <p className="mt-2 text-[10.5px] leading-snug text-slate-500">
-          Every field edits the A4 sheet live; each section below is one part of the cover. Fields marked{' '}
-          <span className="font-semibold text-slate-600">optional</span> are left off the cover when empty.
-        </p>
+        <div className="mt-1.5 flex items-start gap-1.5">
+          <p className="min-w-0 flex-1 text-[10.5px] leading-snug text-slate-500">
+            {ready ? (
+              <>
+                Every required detail is in.{' '}
+                {optionalLeft > 0 ? (
+                  <>
+                    <span className="font-semibold text-slate-600">{optionalLeft} optional</span>{' '}
+                    {optionalLeft === 1 ? 'field is' : 'fields are'} left empty and simply skipped on the cover.
+                  </>
+                ) : (
+                  'Every field is filled.'
+                )}
+              </>
+            ) : (
+              <>
+                Fill the {totalRequired - filledRequired} remaining required detail
+                {totalRequired - filledRequired === 1 ? '' : 's'} · <span className="font-semibold text-slate-600">optional</span>{' '}
+                fields are left off the cover when empty.
+              </>
+            )}
+          </p>
+          <button
+            type="button"
+            aria-label="How this panel works"
+            className="peer grid h-4 w-4 shrink-0 place-items-center rounded-full border border-slate-300 text-[9px] font-bold text-slate-500 transition hover:border-slate-400 hover:text-slate-700"
+          >
+            ?
+          </button>
+          <span
+            role="tooltip"
+            className="pointer-events-none absolute right-3 z-30 mt-5 hidden w-60 rounded-lg border border-slate-200 bg-white px-2.5 py-2 text-[10.5px] leading-snug text-slate-600 shadow-lg peer-hover:block peer-focus-visible:block"
+          >
+            Sections follow the cover from top to bottom: the logo and name, what the assignment is, the student, the
+            faculty and the date. The badge on each section counts the fields you have filled, and the bar above shows
+            the cover&rsquo;s completeness.
+          </span>
+        </div>
       </div>
 
       {/* ---------- Academic ---------- */}
-      <Section title="Academic Details" icon="🎓" note="logo, name & title" badge={<CountBadge filled={counts.academic} total={totals.academic} />}>
+      <Section title="Academic Details" icon="🎓" note="top of the cover" badge={<CountBadge filled={counts.academic} total={totals.academic} />}>
         <FieldRow>
           <Field label="University Name">
             <input
@@ -469,7 +522,7 @@ export function ControlsPanel({ logoUrl, mobileVisible }: { logoUrl: string; mob
       </Section>
 
       {/* ---------- Faculty ---------- */}
-      <Section title="Submitted To" icon="👨‍🏫" note="faculty block" badge={<CountBadge filled={counts.faculty} total={totals.faculty} />}>
+      <Section title="Submitted To" icon="👨‍🏫" note="Submitted To block" badge={<CountBadge filled={counts.faculty} total={totals.faculty} />}>
         <FieldRow>
           <Field label="Instructor Name">
             <input
@@ -495,7 +548,7 @@ export function ControlsPanel({ logoUrl, mobileVisible }: { logoUrl: string; mob
       </Section>
 
       {/* ---------- Style ---------- */}
-      <Section title="Look & Styling" icon="🎨" note="colours & frames">
+      <Section title="Look & Styling" icon="🎨" note="accent & frames">
         <div>
           <span className="field-label">
             <span>Accent Colour</span>

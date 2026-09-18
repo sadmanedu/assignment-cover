@@ -32,6 +32,21 @@ npm run typecheck
 
 All state lives in a [Zustand](https://zustand.docs.pmnd.rs/) store and updates the preview instantly.
 
+#### The details panel explains itself
+
+- **Readiness bar** (top of the panel): counts the **required** details — `6 of 7 required details` — and turns into
+  **Cover ready** as soon as they are in. Optional fields never hold it back; when some are empty the line simply
+  says how many are skipped, so the percentage can't look stuck.
+- **Per-section badges** — every section header counts its own filled fields (`3/5`, `done`), and each header says
+  which part of the cover it edits (`top of the cover`, `Submitted By block`, `Submitted To block`, `accent & frames`).
+- **`optional` tags** on the fields whose line disappears from the cover when empty, plus inline hints
+  (`Enter = new line`, `2 = 2nd`, `prints at the bottom`), so the meaning of each control is visible without guessing.
+- **Help button** (`?`) next to the bar explains the whole panel on hover/focus: sections follow the cover from top to
+  bottom, badges count filled fields, and the bar shows completeness.
+- **Compact rows** — related fields share a row on ≥640 px screens (one per row on phones for tap targets), the finer
+  controls (typeface, divider, text size, layout) live in a collapsed *Fine-tune type & layout* group whose header
+  summarises the current choices, and the panel is ~1080 px tall instead of ~2300 px.
+
 ### 2. Customization & styling engine
 - **Theme & accent colors** — 7 presets + custom color picker; dynamically re-tints borders, headers, the title, the rules, and the default emblem.
 - **Border styles** — nine frames, each with a live mini-preview: *None*, *Single Thin*, *Single Bold*,

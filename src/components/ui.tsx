@@ -50,7 +50,7 @@ export function Section({
           </svg>
         </span>
       </button>
-      {open && <div className="space-y-2 px-3.5 pb-3">{children}</div>}
+      {open && <div className="space-y-1.5 px-3.5 pb-2.5">{children}</div>}
     </section>
   );
 }

@@ -30,6 +30,9 @@ const staticChecks = [
   ['submit layout is persisted', /'submitLayout'/.test(read('src/store.ts'))],
   ['two submit layouts defined', (read('src/constants.ts').match(/SUBMIT_LAYOUT_OPTIONS[\s\S]*?\n\];/)?.[0].match(/key: '/g) ?? []).length === 2],
   ['stacked is the default submit layout', /submitLayout:\s*'stacked'/.test(read('src/constants.ts'))],
+  ['panel explains itself (readiness + help)', /required details/.test(read('src/components/ControlsPanel.tsx')) && /How this panel works/.test(read('src/components/ControlsPanel.tsx'))],
+  ['readiness ignores optional fields', /REQUIRED = \{/.test(read('src/components/ControlsPanel.tsx')) && /OPTIONAL = \{/.test(read('src/components/ControlsPanel.tsx'))],
+  ['fields are grouped in compact rows', /export function FieldRow/.test(read('src/components/ui.tsx'))],
   ['sheet draws every divider style', /case 'diamond':/.test(read('src/components/Sheet.tsx')) && /case 'fade':/.test(read('src/components/Sheet.tsx'))],
   ['sheet draws every border style', /bs === 'stitched'/.test(read('src/components/Sheet.tsx')) && /bs === 'corners'/.test(read('src/components/Sheet.tsx'))],
 ];
@@ -104,9 +107,9 @@ try {
     ['fine-tune controls are one click away', openedFineTune],
     ['saira font option', openHtml.includes('Saira Semi Condensed')],
     ['divider options in the panel', openHtml.includes('Three Dots') && openHtml.includes('Double Rule')],
-    ['readiness bar explains the form', html.includes('details filled') && html.includes('Every field edits the A4 sheet live')],
-    ['sections map to cover regions', html.includes('Submitted By block') && html.includes('faculty block')],
-    ['panel shows completion per section', /\d+\/5|done/.test(html) && html.includes('of 13 details filled') || html.includes('Cover ready')],
+    ['readiness bar explains the form', /required details|Cover ready/.test(html) && html.includes('optional')],
+    ['sections map to cover regions', html.includes('Submitted By block') && html.includes('Submitted To block') && html.includes('top of the cover')],
+    ['panel shows completion per section', /\d+\/5|done/.test(html) && /required details|Cover ready/.test(html)],
     ['look & styling section present', html.includes('Look &amp; Styling') || html.includes('Look & Styling')],
     ['logo + save sections are collapsed by default', html.match(/aria-expanded="false"/g)?.length >= 2],
     ['designation multiline ready', /white-space:\s*(?:&quot;|")?pre-line/i.test(html)],
@@ -147,6 +150,47 @@ try {
     useCover.getState().set({ contentScale: 1 });
   } catch (err) {
     console.error('CONTENT SIZE CHECK ERROR:', err);
+    failed = true;
+  }
+
+  /* Readiness strip: required details only, optional ones called out separately. */
+  try {
+    const { useCover } = await vite.ssrLoadModule('/src/store.ts');
+    const strip = () => {
+      const aside = dom.window.document.querySelector('aside');
+      return {
+        headline: aside.querySelector('.text-\\[11\\.5px\\]')?.textContent.trim() ?? '',
+        sentence: aside.querySelector('p')?.textContent.trim() ?? '',
+      };
+    };
+    const defaults = { ...useCover.getState() };
+    useCover.getState().set({ assignmentTitle: '', courseTitle: '', courseCode: '' });
+    await new Promise((r) => setTimeout(r, 120));
+    const empty = strip();
+    useCover.getState().set({ assignmentTitle: 'Impacts of Mughal Land Revenue Reforms' });
+    await new Promise((r) => setTimeout(r, 120));
+    const readyWithOptionalGaps = strip();
+    useCover.getState().set({ courseTitle: 'Data Structures', courseCode: '2102' });
+    await new Promise((r) => setTimeout(r, 120));
+    const fullyFilled = strip();
+
+    const readinessChecks = [
+      ['readiness counts required details only', /required details$/.test(empty.headline)],
+      ['readiness names the missing required detail', /Fill the 1 remaining required detail/.test(empty.sentence)],
+      ['cover reports ready with optional fields empty', readyWithOptionalGaps.headline === 'Cover ready' && /optional fields? (?:is|are) left empty/.test(readyWithOptionalGaps.sentence)],
+      ['cover reports every field filled', /Every field is filled/.test(fullyFilled.sentence)],
+    ];
+    for (const [name, ok] of readinessChecks) {
+      console.log(`${ok ? 'PASS' : 'FAIL'}  ${name}`);
+      if (!ok) failed = true;
+    }
+    useCover.getState().set({
+      assignmentTitle: defaults.assignmentTitle,
+      courseTitle: defaults.courseTitle,
+      courseCode: defaults.courseCode,
+    });
+  } catch (err) {
+    console.error('READINESS CHECK ERROR:', err);
     failed = true;
   }
 
