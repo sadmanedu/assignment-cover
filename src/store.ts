@@ -38,6 +38,7 @@ const SETTING_KEYS: (keyof CoverSettings)[] = [
   'logoSize',
   'fontKey',
   'backgroundKey',
+  'dividerStyle',
   'contentScale',
 ];
 

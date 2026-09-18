@@ -1,4 +1,22 @@
-export type BorderStyle = 'none' | 'single' | 'double' | 'decorative';
+export type BorderStyle =
+  | 'none'
+  | 'single'
+  | 'bold'
+  | 'double'
+  | 'inset'
+  | 'decorative'
+  | 'corners'
+  | 'flourish'
+  | 'stitched';
+export type DividerStyle =
+  | 'hairline'
+  | 'dashed'
+  | 'double'
+  | 'diamond'
+  | 'dots'
+  | 'accent'
+  | 'fade'
+  | 'none';
 export type LogoShape = 'normal' | 'circular';
 export type FontKey = 'sans' | 'formal' | 'saira';
 export type BackgroundKey = 'white' | 'offwhite' | 'cream' | 'gray' | 'linen';
@@ -22,6 +40,8 @@ export interface CoverData {
 export interface CoverSettings {
   accentColor: string;
   borderStyle: BorderStyle;
+  /** Hairline and the other rule styles used between the cover's blocks. */
+  dividerStyle: DividerStyle;
   logoDataUrl: string | null; // null → default generated emblem
   logoShape: LogoShape;
   logoSize: number; // mm

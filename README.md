@@ -33,11 +33,18 @@ All state lives in a [Zustand](https://zustand.docs.pmnd.rs/) store and updates 
 
 ### 2. Customization & styling engine
 - **Theme & accent colors** — 7 presets + custom color picker; dynamically re-tints borders, headers, the title, the rules, and the default emblem.
-- **Border styles** — *None*, *Single Thin*, *Double Classic*, *Decorative* (double frame + inner hairline + corner ornaments), with live mini-previews.
+- **Border styles** — nine frames, each with a live mini-preview: *None*, *Single Thin*, *Single Bold*,
+  *Stitched* (dashed accent rule), *Double Classic*, *Classic Inset* (hairline outside, heavier line set in),
+  *Decorative* (double frame + inner hairline + corner diamonds), *Corner Marks* (four bracketed corners, no
+  continuous frame) and *Flourish* (hairline frame with a diamond at the middle of each side). Every frame is
+  drawn inside the same 8 mm print area, so switching styles never moves the cover's content.
 - **Logo customization** — official JNU crest by default; upload any image (PNG/JPG/SVG, ≤ 2.5 MB), shape toggle (*Normal* / *Circular*), size slider (24–60 mm). A generated accent-tinted academic emblem serves as the fallback.
 - **Typography & background** — Modern Sans (Inter, default), Formal (Palatino), Saira Semi Condensed; backgrounds: Pure White, Off-White, Cream, Light Gray, Linen Texture. **Anek Bangla** is the built-in Bengali font: every stack falls back to it per-glyph, so Bengali text (university name, titles…) renders in Anek Bangla while English stays in the selected Latin font. Only light Anek Bangla weights (300–500) are loaded, so Bengali headings render at Medium — visibly lighter than the bold Latin headings. All three families are **self-hosted** (`src/fonts.css`, files from `@fontsource/*`) — the app makes no network request to a font CDN, and the subsetting behaves exactly as Google Fonts' (`unicode-range` per face).
 
-- **Content size** — one slider (80–160 %) that scales the cover's body text as a group: Department line, course name/code, *An Assignment on*, the title, the *Submitted To* block (instructor + designation), the *Submitted By* block (name, ID, year/semester, session) and the hairline dividers and gaps between them. Every size in that block grows (or shrinks) by the same factor, so the block's internal proportions never change — the university header, its rule and the pinned submission date stay exactly where they are. Click the percentage badge to reset to 100 %. If the enlarged block no longer fits above the date — it pushes the pinned date out of its spot at the bottom of the page — an amber warning appears under the slider; lower the size or shorten the text.
+- **Divider** — the rule used between the cover's blocks (and above the date): *Hairline* (default), *Dashed*,
+  *Double Rule*, *Diamond*, *Three Dots*, *Accent Bar*, *Fade* (accent gradient) and *None*, each with a mini-preview.
+  Like the borders, all styles share one footprint, so switching only changes the look — never the layout.
+- **Content size** — one slider (80–160 %, default **115 %**; 100 % is the design's own size) that scales the cover's body text as a group: Department line, course name/code, *An Assignment on*, the title, the *Submitted To* block (instructor + designation), the *Submitted By* block (name, ID, year/semester, session) and the hairline dividers and gaps between them. Every size in that block grows (or shrinks) by the same factor, so the block's internal proportions never change — the university header, its rule and the pinned submission date stay exactly where they are. Click the percentage badge to reset to 100 %. If the enlarged block no longer fits above the date — it pushes the pinned date out of its spot at the bottom of the page — an amber warning appears under the slider; lower the size or shorten the text.
 
 ### 3. Live A4 preview workspace
 - A true 210 × 297 mm sheet rendered 1:1 and scaled for the viewport.
@@ -82,6 +89,8 @@ pipeline now closes both doors:
 - **Save / Load** — JSON persistence to `localStorage`.
 - **Copy Details** — plain-text summary of every field to the clipboard.
 - **Reset** — restores all defaults.
+
+Save files carry the whole setup — accent, border, divider, typography, logo, content size and all text — so a cover can be restored exactly.
 
 ## Project structure
 

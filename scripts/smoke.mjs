@@ -22,6 +22,12 @@ const staticChecks = [
   ['content size bounds defined', /CONTENT_SCALE_MIN\s*=\s*[\d.]+/.test(read('src/constants.ts'))],
   ['content size is persisted', /'contentScale'/.test(read('src/store.ts'))],
   ['content block is scaled', read('src/components/Sheet.tsx').includes('data-content-block')],
+  ['default content size is 115%', /contentScale:\s*1\.15/.test(read('src/constants.ts'))],
+  ['divider designs defined (8)', (read('src/constants.ts').match(/DIVIDER_OPTIONS[\s\S]*?\n\];/)?.[0].match(/key: '/g) ?? []).length === 8],
+  ['border designs defined (9)', (read('src/constants.ts').match(/BORDER_OPTIONS[\s\S]*?\n\];/)?.[0].match(/key: '/g) ?? []).length === 9],
+  ['divider choice is persisted', /'dividerStyle'/.test(read('src/store.ts'))],
+  ['sheet draws every divider style', /case 'diamond':/.test(read('src/components/Sheet.tsx')) && /case 'fade':/.test(read('src/components/Sheet.tsx'))],
+  ['sheet draws every border style', /bs === 'stitched'/.test(read('src/components/Sheet.tsx')) && /bs === 'corners'/.test(read('src/components/Sheet.tsx'))],
 ];
 
 const dom = new JSDOM('<!doctype html><html><body><div id="root"></div></body></html>', {
@@ -117,6 +123,52 @@ try {
     useCover.getState().set({ contentScale: 1 });
   } catch (err) {
     console.error('CONTENT SIZE CHECK ERROR:', err);
+    failed = true;
+  }
+
+  /* Divider + border designs: what the picker selects must reach the sheet. */
+  try {
+    const { useCover, pickPersistable } = await vite.ssrLoadModule('/src/store.ts');
+    // Read the export sheet (not the whole panel — the pickers draw samples too).
+    const sheetHtml = () => dom.window.document.getElementById('print-sheet').innerHTML;
+    const settle = () => new Promise((r) => setTimeout(r, 120));
+
+    useCover.getState().set({ dividerStyle: 'dots' });
+    await settle();
+    const dots = sheetHtml();
+    useCover.getState().set({ dividerStyle: 'fade' });
+    await settle();
+    const fade = sheetHtml();
+    useCover.getState().set({ dividerStyle: 'none' });
+    await settle();
+    const none = sheetHtml();
+    useCover.getState().set({ dividerStyle: 'hairline' });
+    await settle();
+    const hairline = sheetHtml();
+
+    useCover.getState().set({ borderStyle: 'corners' });
+    await settle();
+    const corners = sheetHtml();
+    useCover.getState().set({ borderStyle: 'stitched' });
+    await settle();
+    const stitched = sheetHtml();
+
+    const designChecks = [
+      ['three-dot divider reaches the sheet', /border-radius:\s*50%/.test(dots)],
+      ['fade divider reaches the sheet', /linear-gradient/.test(fade)],
+      ['no-divider leaves the rule out', !/rgb\(209, 213, 219\)/.test(none)],
+      ['hairline is the default rule', /rgb\(209, 213, 219\)/.test(hairline)],
+      ['corner-mark border reaches the sheet', /border-top-width:\s*3pt/.test(corners)],
+      ['stitched border reaches the sheet', /1\.6pt dashed/.test(stitched)],
+      ['divider choice is stored in the save file', pickPersistable(useCover.getState()).settings.dividerStyle === 'hairline'],
+    ];
+    for (const [name, ok] of designChecks) {
+      console.log(`${ok ? 'PASS' : 'FAIL'}  ${name}`);
+      if (!ok) failed = true;
+    }
+    useCover.getState().set({ borderStyle: 'double' });
+  } catch (err) {
+    console.error('DESIGN CHECK ERROR:', err);
     failed = true;
   }
 } catch (err) {

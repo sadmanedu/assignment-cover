@@ -1,5 +1,5 @@
 import type { CSSProperties } from 'react';
-import type { SheetProps } from '../types';
+import type { DividerStyle, SheetProps } from '../types';
 import { BACKGROUNDS, FONT_STACKS } from '../constants';
 import { formatDateLong, hexDarken, ordinal } from '../lib/format';
 
@@ -37,17 +37,91 @@ function Label({ children, top, scale = 1 }: { children: string; top: number; sc
   );
 }
 
-function Divider({ width = 42, top = 6, scale = 1 }: { width?: number; top?: number; scale?: number }) {
-  return (
-    <div
-      style={{
-        width: `${r3(width * scale)}mm`,
-        height: '1px',
-        background: '#d1d5db',
-        marginTop: `${r3(top * scale)}mm`,
-      }}
-    />
-  );
+/**
+ * The rule between two blocks. Every style keeps the same footprint (it starts at
+ * `top` and is centred in the sheet), only its look changes — so switching styles
+ * never re-flows the cover.
+ */
+function Divider({
+  kind = 'hairline',
+  accent,
+  width = 42,
+  top = 6,
+  scale = 1,
+}: {
+  kind?: DividerStyle;
+  accent: string;
+  width?: number;
+  top?: number;
+  scale?: number;
+}) {
+  const w = `${r3(width * scale)}mm`;
+  const marginTop = `${r3(top * scale)}mm`;
+  const rule: CSSProperties = { height: '1px', background: '#d1d5db' };
+  const column: CSSProperties = { width: w, marginTop, display: 'flex', flexDirection: 'column', alignItems: 'center' };
+
+  switch (kind) {
+    case 'none':
+      return <div style={{ marginTop }} />;
+    case 'dashed':
+      return <div style={{ width: w, marginTop, borderTop: '1px dashed #9ca3af' }} />;
+    case 'double':
+      return (
+        <div style={{ ...column, gap: '1.1mm' }}>
+          <div style={{ ...rule, width: '100%' }} />
+          <div style={{ ...rule, width: '100%' }} />
+        </div>
+      );
+    case 'diamond':
+      return (
+        <div style={{ ...column, flexDirection: 'row', gap: '2mm' }}>
+          <div style={{ ...rule, flex: 1 }} />
+          <div style={{ width: '1.8mm', height: '1.8mm', background: accent, transform: 'rotate(45deg)' }} />
+          <div style={{ ...rule, flex: 1 }} />
+        </div>
+      );
+    case 'dots':
+      return (
+        <div style={{ ...column, flexDirection: 'row', justifyContent: 'center', gap: '2mm' }}>
+          {[0.55, 1, 0.55].map((size, i) => (
+            <div
+              key={i}
+              style={{
+                width: `${r3(1.6 * size)}mm`,
+                height: `${r3(1.6 * size)}mm`,
+                borderRadius: '50%',
+                background: i === 1 ? accent : '#d1d5db',
+              }}
+            />
+          ))}
+        </div>
+      );
+    case 'accent':
+      return (
+        <div
+          style={{
+            width: `${r3(width * 0.6 * scale)}mm`,
+            height: `${r3(1.5 * scale)}pt`,
+            borderRadius: '1px',
+            background: accent,
+            marginTop,
+          }}
+        />
+      );
+    case 'fade':
+      return (
+        <div
+          style={{
+            width: w,
+            height: `${r3(1.5 * scale)}pt`,
+            marginTop,
+            background: `linear-gradient(90deg, transparent, ${accent}, transparent)`,
+          }}
+        />
+      );
+    default:
+      return <div style={{ width: w, ...rule, marginTop }} />;
+  }
 }
 
 /** Accent rule: line — diamond — line, under the university name. */
@@ -72,6 +146,34 @@ function NameRule({ accent }: { accent: string }) {
 /*  Page border frame                                                  */
 /* ------------------------------------------------------------------ */
 
+/** The four page-border styles that hang decorations off the frame's corners. */
+const CORNER_SPOTS: CSSProperties[] = [
+  { left: 0, top: 0, borderTop: '3pt solid', borderLeft: '3pt solid', borderTopLeftRadius: '0.8mm' },
+  { right: 0, top: 0, borderTop: '3pt solid', borderRight: '3pt solid', borderTopRightRadius: '0.8mm' },
+  { left: 0, bottom: 0, borderBottom: '3pt solid', borderLeft: '3pt solid', borderBottomLeftRadius: '0.8mm' },
+  { right: 0, bottom: 0, borderBottom: '3pt solid', borderRight: '3pt solid', borderBottomRightRadius: '0.8mm' },
+];
+
+/** A small rotated square, used as an ornament on two of the frame styles. */
+function Ornament({ accent, style }: { accent: string; style: CSSProperties }) {
+  return (
+    <div
+      style={{
+        position: 'absolute',
+        width: '2.4mm',
+        height: '2.4mm',
+        background: accent,
+        transform: 'rotate(45deg)',
+        ...style,
+      }}
+    />
+  );
+}
+
+/**
+ * Page border. `inset: 8mm` is the printable area; every style draws inside it so
+ * switching styles never moves the cover's content.
+ */
 function BorderFrame({ style: bs, accent }: { style: SheetProps['borderStyle']; accent: string }) {
   if (bs === 'none') return null;
   const dark = hexDarken(accent, 0.18);
@@ -82,18 +184,29 @@ function BorderFrame({ style: bs, accent }: { style: SheetProps['borderStyle']; 
           position: 'absolute',
           inset: 0,
           border:
-            bs === 'single' ? `1.4pt solid ${accent}` : `5pt double ${accent}`,
+            bs === 'single'
+              ? `1.4pt solid ${accent}`
+              : bs === 'stitched'
+                ? `1.6pt dashed ${accent}`
+                : bs === 'bold'
+                ? `3pt solid ${accent}`
+                : bs === 'double' || bs === 'decorative'
+                  ? `5pt double ${accent}`
+                  : bs === 'inset' || bs === 'flourish'
+                    ? `0.9pt solid ${accent}`
+                    : undefined,
         }}
       />
+
+      {/* Classic Inset — hairline outside, heavier line set in from the edge. */}
+      {bs === 'inset' && (
+        <div style={{ position: 'absolute', inset: '3mm', border: `2.4pt solid ${accent}` }} />
+      )}
+
+      {/* Decorative — double frame, inner hairline and diamonds on the corners. */}
       {bs === 'decorative' && (
         <>
-          <div
-            style={{
-              position: 'absolute',
-              inset: '3mm',
-              border: `0.8pt solid ${dark}99`,
-            }}
-          />
+          <div style={{ position: 'absolute', inset: '3mm', border: `0.8pt solid ${dark}99` }} />
           {(
             [
               { left: '-3.2mm', top: '-3.2mm' },
@@ -115,6 +228,25 @@ function BorderFrame({ style: bs, accent }: { style: SheetProps['borderStyle']; 
               }}
             />
           ))}
+        </>
+      )}
+
+      {/* Corner Marks — no continuous frame, just four brackets. */}
+      {bs === 'corners' &&
+        CORNER_SPOTS.map((spot, i) => (
+          <div
+            key={i}
+            style={{ position: 'absolute', width: '26mm', height: '26mm', borderColor: accent, ...spot }}
+          />
+        ))}
+
+      {/* Flourish — hairline frame with a diamond at the middle of each side. */}
+      {bs === 'flourish' && (
+        <>
+          <Ornament accent={accent} style={{ left: '50%', top: '-1.2mm', marginLeft: '-1.2mm' }} />
+          <Ornament accent={accent} style={{ left: '50%', bottom: '-1.2mm', marginLeft: '-1.2mm' }} />
+          <Ornament accent={accent} style={{ top: '50%', left: '-1.2mm', marginTop: '-1.2mm' }} />
+          <Ornament accent={accent} style={{ top: '50%', right: '-1.2mm', marginTop: '-1.2mm' }} />
         </>
       )}
     </div>
@@ -142,6 +274,7 @@ export function Sheet(props: SheetProps) {
     submissionDate,
     accentColor,
     borderStyle,
+    dividerStyle,
     logoDataUrl,
     logoShape,
     logoSize,
@@ -256,7 +389,7 @@ export function Sheet(props: SheetProps) {
             </div>
           )}
 
-          <Divider top={7} scale={scale} />
+          <Divider kind={dividerStyle} accent={accent} top={7} scale={scale} />
 
           {/* Assignment title */}
           <div style={{ marginTop: mm(6), fontSize: pt(10.5), fontStyle: 'italic', color: GRAY }}>
@@ -281,7 +414,7 @@ export function Sheet(props: SheetProps) {
             {val(assignmentTitle, 'Assignment Title')}
           </div>
 
-          <Divider top={7} scale={scale} />
+          <Divider kind={dividerStyle} accent={accent} top={7} scale={scale} />
 
           {/* Submitted To */}
           <Label top={5} scale={scale}>Submitted To</Label>
@@ -301,7 +434,7 @@ export function Sheet(props: SheetProps) {
             {val(instructorDesignation).replace(/\\n/g, '\n')}
           </div>
 
-          <Divider top={8} scale={scale} />
+          <Divider kind={dividerStyle} accent={accent} top={8} scale={scale} />
 
           {/* Submitted By */}
           <Label top={5} scale={scale}>Submitted By</Label>
@@ -335,7 +468,7 @@ export function Sheet(props: SheetProps) {
             alignItems: 'center',
           }}
         >
-          <Divider width={90} top={0} />
+          <Divider kind={dividerStyle} accent={accent} width={90} top={0} />
           <div style={{ marginTop: '3mm', fontSize: '11pt', color: DARK }}>
             <span style={{ color: GRAY }}>Date of Submission: </span>
             <span style={{ fontWeight: 700 }}>{formatDateLong(submissionDate)}</span>

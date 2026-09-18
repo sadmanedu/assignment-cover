@@ -1,4 +1,4 @@
-import type { BackgroundKey, BorderStyle, CoverData, CoverSettings, FontKey } from './types';
+import type { BackgroundKey, BorderStyle, CoverData, CoverSettings, DividerStyle, FontKey } from './types';
 
 /** A4 sheet metrics (96dpi screen px for a 210×297mm sheet). */
 export const A4 = { wMm: 210, hMm: 297, wPx: 793.7, hPx: 1122.5 } as const;
@@ -32,12 +32,13 @@ export const DEFAULT_LOGO_URL = '/jnu-logo.png';
 export const DEFAULT_SETTINGS: CoverSettings = {
   accentColor: '#1e3a8a',
   borderStyle: 'double',
+  dividerStyle: 'hairline',
   logoDataUrl: DEFAULT_LOGO_URL,
   logoShape: 'normal',
   logoSize: 36,
   fontKey: 'sans',
   backgroundKey: 'white',
-  contentScale: 1,
+  contentScale: 1.15,
 };
 
 export const ACCENT_PRESETS: { name: string; value: string }[] = [
@@ -79,8 +80,24 @@ export const FONT_OPTIONS: { key: FontKey; label: string; hint: string }[] = [
 export const BORDER_OPTIONS: { key: BorderStyle; label: string }[] = [
   { key: 'none', label: 'None' },
   { key: 'single', label: 'Single Thin' },
+  { key: 'bold', label: 'Single Bold' },
   { key: 'double', label: 'Double Classic' },
+  { key: 'inset', label: 'Classic Inset' },
   { key: 'decorative', label: 'Decorative' },
+  { key: 'corners', label: 'Corner Marks' },
+  { key: 'flourish', label: 'Flourish' },
+  { key: 'stitched', label: 'Stitched' },
+];
+
+export const DIVIDER_OPTIONS: { key: DividerStyle; label: string }[] = [
+  { key: 'hairline', label: 'Hairline' },
+  { key: 'dashed', label: 'Dashed' },
+  { key: 'double', label: 'Double Rule' },
+  { key: 'diamond', label: 'Diamond' },
+  { key: 'dots', label: 'Three Dots' },
+  { key: 'accent', label: 'Accent Bar' },
+  { key: 'fade', label: 'Fade' },
+  { key: 'none', label: 'None' },
 ];
 
 export const BACKGROUNDS: Record<

@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type ChangeEvent } from 'react';
+import { useEffect, useRef, useState, type ChangeEvent, type CSSProperties } from 'react';
 import { useCover, pickPersistable } from '../store';
 import {
   ACCENT_PRESETS,
@@ -7,6 +7,7 @@ import {
   CONTENT_SCALE_MAX,
   CONTENT_SCALE_MIN,
   CONTENT_SCALE_STEP,
+  DIVIDER_OPTIONS,
   FONT_OPTIONS,
   FONT_STACKS,
   LOGO_SIZE_MAX,
@@ -16,7 +17,7 @@ import {
 } from '../constants';
 import { toast } from '../lib/toast';
 import { buildDetailsText, copyText } from '../lib/format';
-import type { BorderStyle, FontKey, LogoShape } from '../types';
+import type { BorderStyle, DividerStyle, FontKey, LogoShape } from '../types';
 import { Field, Section, Seg } from './ui';
 
 /**
@@ -75,16 +76,146 @@ function useContentOverflow(dep: unknown): boolean {
   return overflow;
 }
 
-function borderSample(key: BorderStyle, accent: string): string {
-  switch (key) {
+/**
+ * Miniature of each page border, drawn with the same shapes the sheet uses so the
+ * picker shows what you get. `B` is the tiny frame the sample is drawn in.
+ */
+function BorderSample({ kind, accent }: { kind: BorderStyle; accent: string }) {
+  const frame: CSSProperties = { position: 'absolute', inset: 3 };
+  const line = (extra: CSSProperties): CSSProperties => ({ position: 'absolute', borderColor: accent, ...extra });
+  switch (kind) {
     case 'none':
-      return '1px dashed #cbd5e1';
+      return <span style={{ ...frame, border: '1px dashed #cbd5e1' }} />;
     case 'single':
-      return `2px solid ${accent}`;
+      return <span style={{ ...frame, border: `2px solid ${accent}` }} />;
+    case 'bold':
+      return <span style={{ ...frame, border: `4px solid ${accent}` }} />;
+    case 'stitched':
+      return <span style={{ ...frame, border: `2px dashed ${accent}` }} />;
     case 'double':
-      return `4px double ${accent}`;
+      return <span style={{ ...frame, border: `4px double ${accent}` }} />;
+    case 'inset':
+      return (
+        <>
+          <span style={{ ...frame, border: `1px solid ${accent}` }} />
+          <span style={{ position: 'absolute', inset: 7, border: `2px solid ${accent}` }} />
+        </>
+      );
     case 'decorative':
-      return `3px double ${accent}`;
+      return (
+        <>
+          <span style={{ ...frame, border: `4px double ${accent}` }} />
+          <span style={{ position: 'absolute', inset: 8, border: `1px solid ${accent}` }} />
+          {[
+            { left: 1, top: 1 },
+            { right: 1, top: 1 },
+            { left: 1, bottom: 1 },
+            { right: 1, bottom: 1 },
+          ].map((spot, i) => (
+            <span
+              key={i}
+              style={{
+                position: 'absolute',
+                width: 6,
+                height: 6,
+                background: '#fff',
+                border: `1.5px solid ${accent}`,
+                transform: 'rotate(45deg)',
+                ...spot,
+              }}
+            />
+          ))}
+        </>
+      );
+    case 'corners':
+      return (
+        <>
+          {[
+            { left: 2, top: 2, borderTop: `2.5px solid ${accent}`, borderLeft: `2.5px solid ${accent}` },
+            { right: 2, top: 2, borderTop: `2.5px solid ${accent}`, borderRight: `2.5px solid ${accent}` },
+            { left: 2, bottom: 2, borderBottom: `2.5px solid ${accent}`, borderLeft: `2.5px solid ${accent}` },
+            { right: 2, bottom: 2, borderBottom: `2.5px solid ${accent}`, borderRight: `2.5px solid ${accent}` },
+          ].map((spot, i) => (
+            <span key={i} style={{ position: 'absolute', width: 15, height: 15, ...spot }} />
+          ))}
+        </>
+      );
+    case 'flourish':
+      return (
+        <>
+          <span style={{ ...frame, border: `1.5px solid ${accent}` }} />
+          {[
+            { left: '50%', top: 0, marginLeft: -3 },
+            { left: '50%', bottom: 0, marginLeft: -3 },
+            { top: '50%', left: 0, marginTop: -3 },
+            { top: '50%', right: 0, marginTop: -3 },
+          ].map((spot, i) => (
+            <span
+              key={i}
+              style={{
+                position: 'absolute',
+                width: 6,
+                height: 6,
+                background: accent,
+                transform: 'rotate(45deg)',
+                ...spot,
+              }}
+            />
+          ))}
+          <span />
+        </>
+      );
+    default:
+      return <span style={{ ...frame, ...line({}) }} />;
+  }
+}
+
+/** Miniature of each divider style — the same drawing the sheet uses, shrunk. */
+function DividerSample({ kind, accent }: { kind: DividerStyle; accent: string }) {
+  const row: CSSProperties = { display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%' };
+  const bar: CSSProperties = { height: 1, background: '#cbd5e1' };
+  switch (kind) {
+    case 'none':
+      return <span style={{ ...row, color: '#cbd5e1', fontSize: 12 }}>—</span>;
+    case 'dashed':
+      return <span style={{ ...row }}>
+        <span style={{ width: '72%', borderTop: '1px dashed #9ca3af' }} />
+      </span>;
+    case 'double':
+      return (
+        <span style={{ ...row, flexDirection: 'column', gap: 3 }}>
+          <span style={{ ...bar, width: '72%' }} />
+          <span style={{ ...bar, width: '72%' }} />
+        </span>
+      );
+    case 'diamond':
+      return (
+        <span style={{ ...row, gap: 4, width: '100%' }}>
+          <span style={{ ...bar, flex: 1, marginLeft: '6%' }} />
+          <span style={{ width: 6, height: 6, background: accent, transform: 'rotate(45deg)' }} />
+          <span style={{ ...bar, flex: 1, marginRight: '6%' }} />
+        </span>
+      );
+    case 'dots':
+      return (
+        <span style={{ ...row, gap: 4 }}>
+          <span style={{ width: 4, height: 4, borderRadius: '50%', background: '#cbd5e1' }} />
+          <span style={{ width: 6, height: 6, borderRadius: '50%', background: accent }} />
+          <span style={{ width: 4, height: 4, borderRadius: '50%', background: '#cbd5e1' }} />
+        </span>
+      );
+    case 'accent':
+      return <span style={{ ...row }}>
+        <span style={{ width: '45%', height: 3, borderRadius: 2, background: accent }} />
+      </span>;
+    case 'fade':
+      return <span style={{ ...row }}>
+        <span style={{ width: '80%', height: 3, background: `linear-gradient(90deg, transparent, ${accent}, transparent)` }} />
+      </span>;
+    default:
+      return <span style={{ ...row }}>
+        <span style={{ width: '72%', ...bar }} />
+      </span>;
   }
 }
 
@@ -346,14 +477,36 @@ export function ControlsPanel({ logoUrl, mobileVisible }: { logoUrl: string; mob
                     : 'border-slate-200 hover:border-slate-300'
                 }`}
               >
-                <span className="block h-9 w-full overflow-hidden rounded border border-slate-200 bg-white">
-                  <span
-                    className="block"
-                    style={{ margin: '4px', border: borderSample(b.key, accent) }}
-                  />
+                <span className="relative block h-9 w-full overflow-hidden rounded border border-slate-200 bg-white">
+                  <BorderSample kind={b.key} accent={accent} />
                 </span>
                 <span className="mt-1 block text-[10px] font-semibold leading-tight text-slate-600">
                   {b.label}
+                </span>
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div>
+          <span className="field-label">Divider</span>
+          <div className="grid grid-cols-4 gap-2">
+            {DIVIDER_OPTIONS.map((d) => (
+              <button
+                key={d.key}
+                type="button"
+                onClick={() => set({ dividerStyle: d.key })}
+                className={`rounded-lg border p-1.5 text-center transition ${
+                  cover.dividerStyle === d.key
+                    ? 'border-blue-500 bg-blue-50'
+                    : 'border-slate-200 hover:border-slate-300'
+                }`}
+              >
+                <span className="block h-6 w-full overflow-hidden rounded border border-slate-200 bg-white">
+                  <DividerSample kind={d.key} accent={accent} />
+                </span>
+                <span className="mt-1 block text-[10px] font-semibold leading-tight text-slate-600">
+                  {d.label}
                 </span>
               </button>
             ))}
