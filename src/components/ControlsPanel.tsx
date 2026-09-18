@@ -181,9 +181,9 @@ function SubmitLayoutSample({ kind, accent }: { kind: SubmitLayout; accent: stri
   });
   if (kind === 'columns') {
     return (
-      <span style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'center', gap: 8, height: '100%', paddingTop: 3 }}>
+      <span style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'center', gap: 10, height: '100%', paddingTop: 8, paddingLeft: 4 }}>
         {[0, 1].map((col) => (
-          <span key={col} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
+          <span key={col} style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: 2, flex: '1 1 0' }}>
             <span style={{ ...bar('60%'), height: 2 }} />
             <span style={bar('80%', true)} />
             <span style={bar('68%')} />

@@ -198,6 +198,9 @@ try {
         panels: wrap.children.length,
         labels: [to?.textContent.trim().startsWith('Submitted To'), by?.textContent.trim().startsWith('Submitted By')],
         byOffset: by?.style.marginTop ?? '',
+        topGap: wrap.style.marginTop,
+        toAlign: to?.style.textAlign,
+        byAlign: by?.style.textAlign,
       };
     };
 
@@ -214,7 +217,10 @@ try {
       ['stacked layout stacks the panels', stacked?.layout === 'stacked' && stacked?.direction === 'column'],
       ['two-column layout puts the panels side by side', columns?.layout === 'columns' && columns?.direction === 'row'],
       ['stacked layout leaves a gap above Submitted By', stacked?.byOffset !== '0mm' && stacked?.byOffset !== ''],
-      ['two-column layout aligns the panels', columns?.byOffset === '0mm'],
+      ['two-column layout aligns the panels at the top', columns?.byOffset === '0mm'],
+      ['two-column layout left-aligns both panels', columns?.toAlign === 'left' && columns?.byAlign === 'left'],
+      ['stacked layout centres both panels', stacked?.toAlign === 'center' && stacked?.byAlign === 'center'],
+      ['two-column pair sits lower on the page', columns?.topGap === '18mm' && stacked?.topGap === '7mm'],
       ['submit layout is stored in the save file', pickPersistable(useCover.getState()).settings.submitLayout === 'columns'],
     ];
     for (const [name, ok] of layoutChecks) {

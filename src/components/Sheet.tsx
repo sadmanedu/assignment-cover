@@ -134,8 +134,9 @@ function panelStyle(columns: boolean, gap: string = '0mm'): CSSProperties {
     ...(columns ? { flex: '1 1 0', minWidth: 0 } : { maxWidth: '100%' }),
     display: 'flex',
     flexDirection: 'column',
-    alignItems: 'center',
-    textAlign: 'center',
+    // In the two-column layout each panel reads as a left-aligned column.
+    alignItems: columns ? 'flex-start' : 'center',
+    textAlign: columns ? 'left' : 'center',
     marginTop: gap,
   };
 }
@@ -446,8 +447,9 @@ export function Sheet(props: SheetProps) {
               width: '100%',
               // The rules that used to separate the sections are gone, so their
               // margins live here (7 mm above "Submitted To", 8 mm above
-              // "Submitted By") and the labels keep their own 5px offset.
-              marginTop: mm(7),
+              // "Submitted By") and the labels keep their own 5px offset. The
+              // two-column pair sits lower on the page, so it gets extra room.
+              marginTop: twoColumns ? mm(18) : mm(7),
             }}
           >
             {/* Submitted To (left column in the two-column layout) */}
