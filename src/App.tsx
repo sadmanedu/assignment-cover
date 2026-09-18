@@ -1,5 +1,6 @@
-import { useMemo, useState } from 'react';
-import { useCover } from './store';
+import { useEffect, useMemo, useState } from 'react';
+import { pickPersistable, useCover } from './store';
+import { STORAGE_KEY } from './constants';
 import { emblemDataUrl } from './lib/emblem';
 import { Sheet } from './components/Sheet';
 import { ControlsPanel } from './components/ControlsPanel';
@@ -24,20 +25,60 @@ function TabButton({
       type="button"
       onClick={onClick}
       aria-pressed={active}
-      className={`relative flex flex-1 items-center justify-center gap-2 py-3 text-xs font-bold transition ${
-        active ? 'text-blue-700' : 'text-slate-400 hover:text-slate-600'
+      className={`relative flex flex-1 items-center justify-center gap-2 py-3 text-xs font-bold transition-all duration-300 active:scale-95 ${
+        active
+          ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-inner'
+          : 'text-slate-500 hover:bg-slate-50 hover:text-blue-700'
       }`}
     >
       <span aria-hidden>{icon}</span>
       {label}
-      {active && <span className="absolute inset-x-10 top-0 h-0.5 rounded-full bg-blue-600" aria-hidden />}
+      {active && <span className="absolute inset-x-8 bottom-1 h-1 rounded-full bg-white/90 animate-pulse" aria-hidden />}
     </button>
   );
 }
 
 export default function App() {
   const cover = useCover();
+  const setCover = useCover((state) => state.set);
   const emblemUrl = useMemo(() => emblemDataUrl(cover.accentColor), [cover.accentColor]);
+
+  // Restore the last cover as soon as the app starts, then keep it current in
+  // local storage whenever the user edits a field or style. The explicit Save
+  // button remains available for reassurance, but no action is required to
+  // preserve work between visits.
+  useEffect(() => {
+    let restored = false;
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (raw) {
+        const saved = JSON.parse(raw) as { data?: Record<string, unknown>; settings?: Record<string, unknown> };
+        setCover({ ...(saved.data ?? {}), ...(saved.settings ?? {}) });
+        restored = true;
+      }
+    } catch {
+      // Ignore malformed or unavailable storage and continue with defaults.
+    }
+
+    const unsubscribe = useCover.subscribe((state) => {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify({ v: 1, ...pickPersistable(state) }));
+      } catch {
+        // Storage can be unavailable/full; the editor should remain usable.
+      }
+    });
+
+    // Persist defaults for a first-time visitor, and ensure restored data is
+    // normalized through the same persistence path.
+    if (!restored) {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify({ v: 1, ...pickPersistable(useCover.getState()) }));
+      } catch {
+        // Ignore unavailable storage.
+      }
+    }
+    return unsubscribe;
+  }, [setCover]);
   const logoUrl = cover.logoDataUrl ?? emblemUrl;
 
   // On phones the workspace is single-pane: switch between the form and the
@@ -83,6 +124,9 @@ export default function App() {
           icon="📝"
           label="Details"
         />
+        <span className="flex items-center px-1 text-lg font-black text-indigo-400 transition-transform duration-300" aria-hidden>
+          →
+        </span>
         <TabButton
           active={mobileView === 'preview'}
           onClick={() => setMobileView('preview')}
