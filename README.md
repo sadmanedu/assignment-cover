@@ -54,6 +54,15 @@ All state lives in a [Zustand](https://zustand.docs.pmnd.rs/) store and updates 
 - A true 210 × 297 mm sheet rendered 1:1 and scaled for the viewport.
 - Zoom controls **− / + / Fit** with percentage readout; auto-fits on window resize until you zoom manually.
 
+### The details panel
+
+The left panel is built to be read top-to-bottom in one pass:
+
+- **Readiness bar** — how many of the cover's details are filled, with a progress bar. Each section header repeats the count for its own fields (or **done**), so nothing can be missed without being visible.
+- **Sections map to the cover** — *Academic Details* (logo, university name, title), *Student Details* (the **Submitted By** block), *Submitted To* (the faculty block), *Look & Styling*, *Logo*, *Save & Export*; each header says which part of the sheet it edits.
+- **Optional fields are labelled** — Course Title, Course Code and ID/Roll are marked `optional` because the cover simply leaves that line out when they are empty.
+- **Everything fits** — one field per row on phones, two or three per row from 640 px up, `Enter = new line` hints on the two multi-line fields, and a single **Fine-tune type & layout** disclosure holding typography, divider, content size and the Submitted To/By arrangement (its header summarises the current choices). Logo and Save/Export are collapsed too — the whole panel is about half the height it used to be (2327 → 1109 px on desktop, 2492 → 1661 px on a phone), so the everyday fields fit without scrolling.
+
 ### Responsive layout
 - **Desktop (lg+)**: split screen — form controls left, live preview right.
 - **Phones / tablets**: single-pane with a bottom **Details ⇄ Preview** tab bar, collapsible form sections (accordion headers), a wrapping export toolbar, and enlarged touch targets. The preview auto-fits the smaller viewport and re-fits when the tab is reopened.

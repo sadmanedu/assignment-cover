@@ -63,6 +63,19 @@ try {
   await new Promise((r) => setTimeout(r, 800));
   const root = dom.window.document.getElementById('root');
   const html = root.innerHTML;
+
+  /* Compact panel: the type/layout controls sit behind one disclosure — open it
+     (as a user would) and re-read the panel. */
+  const clickByText = (needle) => {
+    const btn = [...dom.window.document.querySelectorAll('button')].find((b) => b.textContent.includes(needle));
+    if (!btn) return false;
+    btn.dispatchEvent(new dom.window.MouseEvent('click', { bubbles: true }));
+    return true;
+  };
+  const openedFineTune = clickByText('Fine-tune type & layout');
+  await new Promise((r) => setTimeout(r, 120));
+  const openHtml = root.innerHTML;
+
   const checks = [
     ...staticChecks,
     ['app header rendered', html.includes('Nexora Cover Design')],
@@ -88,7 +101,14 @@ try {
     ['date of submission', html.includes('Date of Submission')],
     ['zoom toolbar (Fit)', html.includes('Fit')],
     ['export buttons', html.includes('PNG') && html.includes('PDF') && html.includes('Print')],
-    ['saira font option', html.includes('Saira Semi Condensed')],
+    ['fine-tune controls are one click away', openedFineTune],
+    ['saira font option', openHtml.includes('Saira Semi Condensed')],
+    ['divider options in the panel', openHtml.includes('Three Dots') && openHtml.includes('Double Rule')],
+    ['readiness bar explains the form', html.includes('details filled') && html.includes('Every field edits the A4 sheet live')],
+    ['sections map to cover regions', html.includes('Submitted By block') && html.includes('faculty block')],
+    ['panel shows completion per section', /\d+\/5|done/.test(html) && html.includes('of 13 details filled') || html.includes('Cover ready')],
+    ['look & styling section present', html.includes('Look &amp; Styling') || html.includes('Look & Styling')],
+    ['logo + save sections are collapsed by default', html.match(/aria-expanded="false"/g)?.length >= 2],
     ['designation multiline ready', /white-space:\s*(?:&quot;|")?pre-line/i.test(html)],
     ['classic serif removed', !html.includes('Classic Serif')],
     ['modern sans is default', /font-family:\s*(?:&quot;|")?Inter/i.test(html)],
