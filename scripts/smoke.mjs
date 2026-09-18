@@ -201,6 +201,9 @@ try {
         topGap: wrap.style.marginTop,
         toAlign: to?.style.textAlign,
         byAlign: by?.style.textAlign,
+        justify: wrap.style.justifyContent,
+        toFlex: to?.style.flex || 'maxWidth',
+        byFlex: by?.style.flex || 'maxWidth',
       };
     };
 
@@ -221,6 +224,9 @@ try {
       ['two-column layout left-aligns both panels', columns?.toAlign === 'left' && columns?.byAlign === 'left'],
       ['stacked layout centres both panels', stacked?.toAlign === 'center' && stacked?.byAlign === 'center'],
       ['two-column pair sits lower on the page', columns?.topGap === '18mm' && stacked?.topGap === '7mm'],
+      ['two-column panels size to their text', columns?.toFlex.startsWith('0 1') && columns?.byFlex.startsWith('0 1')],
+      ['two-column pair is centred as a group', columns?.justify === 'center'],
+      ['stacked panels keep full width', stacked?.toFlex.includes('maxWidth') || stacked?.direction === 'column'],
       ['submit layout is stored in the save file', pickPersistable(useCover.getState()).settings.submitLayout === 'columns'],
     ];
     for (const [name, ok] of layoutChecks) {

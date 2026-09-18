@@ -27,7 +27,7 @@ npm run typecheck
 - **Academic details** — University name, Department, Course title, Course code, Assignment/Report title.
 - **Student details** — Name, ID/Roll number, Session, Year, Semester (numeric values auto-ordinal: `2` → `2nd`).
 - **Faculty details** — Instructor name (“Submitted To”) and designation. Designation is multi-line: press Enter (or type a literal `\n`) and the cover renders the break on the next line.
-- **Submitted To / By layout** — choose how the two panels sit: **Stacked** (To above By, separated by a two-line gap — the default) or **Two Columns** (To on the left, By on the right, both left-aligned in their own half of the page and sitting a little lower down the cover). Each option has a mini-preview, the choice is saved with the cover, and both arrangements keep the section spacing of the original stacked design.
+- **Submitted To / By layout** — choose how the two panels sit: **Stacked** (To above By, separated by a two-line gap — the default) or **Two Columns** (To on the left, By on the right — left-aligned, sitting a little lower down the cover, and centred as a group so the margin between the text and the page border is the same on both sides). Each option has a mini-preview, the choice is saved with the cover, and both arrangements keep the section spacing of the original stacked design.
 - **Metadata** — Submission date (rendered long-form: *10 September 2026*).
 
 All state lives in a [Zustand](https://zustand.docs.pmnd.rs/) store and updates the preview instantly.

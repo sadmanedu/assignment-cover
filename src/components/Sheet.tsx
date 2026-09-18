@@ -131,7 +131,9 @@ function Divider({
  */
 function panelStyle(columns: boolean, gap: string = '0mm'): CSSProperties {
   return {
-    ...(columns ? { flex: '1 1 0', minWidth: 0 } : { maxWidth: '100%' }),
+    // Content-sized in the two-column layout: the pair is then centred as a group,
+    // which leaves the same gap between the text and the border on either side.
+    ...(columns ? { flex: '0 1 auto', minWidth: 0 } : { maxWidth: '100%' }),
     display: 'flex',
     flexDirection: 'column',
     // In the two-column layout each panel reads as a left-aligned column.
@@ -441,9 +443,9 @@ export function Sheet(props: SheetProps) {
             style={{
               display: 'flex',
               flexDirection: twoColumns ? 'row' : 'column',
-              alignItems: twoColumns ? 'stretch' : 'center',
+              alignItems: twoColumns ? 'flex-start' : 'center',
               justifyContent: twoColumns ? 'center' : undefined,
-              gap: twoColumns ? mm(6) : undefined,
+              gap: twoColumns ? mm(14) : undefined,
               width: '100%',
               // The rules that used to separate the sections are gone, so their
               // margins live here (7 mm above "Submitted To", 8 mm above
