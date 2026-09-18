@@ -37,6 +37,7 @@ export const DEFAULT_SETTINGS: CoverSettings = {
   logoSize: 36,
   fontKey: 'sans',
   backgroundKey: 'white',
+  contentScale: 1,
 };
 
 export const ACCENT_PRESETS: { name: string; value: string }[] = [
@@ -100,3 +101,12 @@ export const BACKGROUNDS: Record<
 
 export const LOGO_SIZE_MIN = 24;
 export const LOGO_SIZE_MAX = 60;
+
+/**
+ * Range for the "Content Size" control. The upper end is bounded by the page:
+ * the block scales gaps and rules along with the type, and on a 297 mm sheet the
+ * content still has to clear the pinned submission date.
+ */
+export const CONTENT_SCALE_MIN = 0.8;
+export const CONTENT_SCALE_MAX = 1.6;
+export const CONTENT_SCALE_STEP = 0.05;

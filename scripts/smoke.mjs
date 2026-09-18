@@ -18,6 +18,10 @@ const staticChecks = [
   ['exports embed font files', exporters.includes('fontEmbedCSS')],
   ['exports pin preview line breaks', exporters.includes('freezeLineBreaks')],
   ['exports load every face first', exporters.includes('ensureSheetFontsLoaded')],
+  ['content size control present', read('src/components/ControlsPanel.tsx').includes('Content size')],
+  ['content size bounds defined', /CONTENT_SCALE_MIN\s*=\s*[\d.]+/.test(read('src/constants.ts'))],
+  ['content size is persisted', /'contentScale'/.test(read('src/store.ts'))],
+  ['content block is scaled', read('src/components/Sheet.tsx').includes('data-content-block')],
 ];
 
 const dom = new JSDOM('<!doctype html><html><body><div id="root"></div></body></html>', {
@@ -86,6 +90,34 @@ try {
   for (const [name, ok] of checks) {
     console.log(`${ok ? 'PASS' : 'FAIL'}  ${name}`);
     if (!ok) failed = true;
+  }
+
+  /* Content Size: the block must scale, the header/date must not. */
+  try {
+    const { useCover, pickPersistable } = await vite.ssrLoadModule('/src/store.ts');
+    useCover.getState().set({ contentScale: 1.5 });
+    await new Promise((r) => setTimeout(r, 120));
+    const scaled = dom.window.document.getElementById('root').innerHTML;
+    const hasStyle = (prop, value) =>
+      new RegExp(`${prop.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}:\\s*${value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\s*[;"]`).test(scaled);
+    const scaledChecks = [
+      ['content size scales the title (16pt → 24pt)', hasStyle('font-size', '24pt')],
+      ['content size scales the department (12.5pt → 18.75pt)', hasStyle('font-size', '18.75pt')],
+      ['content size scales the designation (10.5pt → 15.75pt)', hasStyle('font-size', '15.75pt')],
+      ['content size scales the SUBMITTED TO label (8.5pt → 12.75pt)', hasStyle('font-size', '12.75pt')],
+      ['content size scales the block gaps (10mm → 15mm)', hasStyle('margin-top', '15mm')],
+      ['header stays fixed (university 18pt)', hasStyle('font-size', '18pt')],
+      ['date stays fixed (11pt)', hasStyle('font-size', '11pt')],
+      ['content size is stored in the save file', pickPersistable(useCover.getState()).settings.contentScale === 1.5],
+    ];
+    for (const [name, ok] of scaledChecks) {
+      console.log(`${ok ? 'PASS' : 'FAIL'}  ${name}`);
+      if (!ok) failed = true;
+    }
+    useCover.getState().set({ contentScale: 1 });
+  } catch (err) {
+    console.error('CONTENT SIZE CHECK ERROR:', err);
+    failed = true;
   }
 } catch (err) {
   console.error('RENDER ERROR:', err);

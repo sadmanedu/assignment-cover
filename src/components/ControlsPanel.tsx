@@ -1,9 +1,12 @@
-import { useRef, type ChangeEvent } from 'react';
+import { useEffect, useRef, useState, type ChangeEvent } from 'react';
 import { useCover, pickPersistable } from '../store';
 import {
   ACCENT_PRESETS,
   BACKGROUNDS,
   BORDER_OPTIONS,
+  CONTENT_SCALE_MAX,
+  CONTENT_SCALE_MIN,
+  CONTENT_SCALE_STEP,
   FONT_OPTIONS,
   FONT_STACKS,
   LOGO_SIZE_MAX,
@@ -15,6 +18,62 @@ import { toast } from '../lib/toast';
 import { buildDetailsText, copyText } from '../lib/format';
 import type { BorderStyle, FontKey, LogoShape } from '../types';
 import { Field, Section, Seg } from './ui';
+
+/**
+ * True when the (scaled) content block no longer fits above the pinned
+ * submission date, so the bottom of the cover would be clipped. Measured on the
+ * off-screen 1:1 export sheet, which is independent of the preview's zoom.
+ */
+/** Computed style lengths come back in whatever unit the CSS used — read them as px. */
+function cssPx(value: string): number {
+  const n = parseFloat(value) || 0;
+  if (value.endsWith('mm')) return (n * 96) / 25.4;
+  if (value.endsWith('cm')) return (n * 96) / 2.54;
+  if (value.endsWith('pt')) return (n * 96) / 72;
+  if (value.endsWith('in')) return n * 96;
+  return n;
+}
+
+function useContentOverflow(dep: unknown): boolean {
+  const [overflow, setOverflow] = useState(false);
+  useEffect(() => {
+    const sheet = document.getElementById('print-sheet')?.firstElementChild as HTMLElement | null;
+    const block = sheet?.querySelector<HTMLElement>('[data-content-block]');
+    const date = sheet?.querySelector<HTMLElement>('[data-date-block]');
+    if (!sheet || !block || !date) {
+      setOverflow(false);
+      return;
+    }
+    let live = true;
+    // The date is pinned to the bottom of the padded content column by
+    // `marginTop: auto`, so at rest it sits flush with that column's bottom
+    // padding. If the scaled block needs more room than is left above it, the date
+    // is pushed out of that resting spot — that displacement is what "no longer
+    // fits" means (not a mere near-miss).
+    const column = date.parentElement ?? sheet;
+    const measure = () => {
+      if (!live) return;
+      const columnRect = column.getBoundingClientRect();
+      const dateRect = date.getBoundingClientRect();
+      const restBottom = columnRect.bottom - cssPx(getComputedStyle(column).paddingBottom);
+      setOverflow(dateRect.bottom > restBottom + 1);
+    };
+    // Measure after this render is on screen…
+    const frame = requestAnimationFrame(measure);
+    // …and again whenever the sheet re-flows for any other reason, so the warning
+    // stays correct when fonts finish loading or the text re-wraps.
+    const observer = typeof ResizeObserver === 'undefined' ? null : new ResizeObserver(measure);
+    observer?.observe(block);
+    observer?.observe(date);
+    if (typeof document !== 'undefined' && document.fonts) document.fonts.ready.then(measure).catch(() => {});
+    return () => {
+      live = false;
+      cancelAnimationFrame(frame);
+      observer?.disconnect();
+    };
+  }, [dep]);
+  return overflow;
+}
 
 function borderSample(key: BorderStyle, accent: string): string {
   switch (key) {
@@ -91,6 +150,8 @@ export function ControlsPanel({ logoUrl, mobileVisible }: { logoUrl: string; mob
       toast('Reset to defaults', 'ok');
     }
   };
+
+  const contentOverflow = useContentOverflow(cover);
 
   const accent = cover.accentColor;
   const bgEntries = Object.entries(BACKGROUNDS) as [keyof typeof BACKGROUNDS, (typeof BACKGROUNDS)[keyof typeof BACKGROUNDS]][];
@@ -320,6 +381,52 @@ export function ControlsPanel({ logoUrl, mobileVisible }: { logoUrl: string; mob
               </button>
             ))}
           </div>
+        </div>
+
+        <div>
+          <span className="field-label flex items-center justify-between gap-2">
+            <span>Content Size</span>
+            <button
+              type="button"
+              onClick={() => set({ contentScale: 1 })}
+              disabled={cover.contentScale === 1}
+              title={cover.contentScale === 1 ? 'Content size is at 100%' : 'Reset content size to 100%'}
+              className={`rounded px-1.5 py-0.5 text-[11px] font-bold tabular-nums transition ${
+                cover.contentScale === 1
+                  ? 'cursor-default text-slate-400'
+                  : 'text-blue-700 hover:bg-blue-50'
+              }`}
+            >
+              {Math.round(cover.contentScale * 100)}%
+            </button>
+          </span>
+          <input
+            type="range"
+            min={CONTENT_SCALE_MIN}
+            max={CONTENT_SCALE_MAX}
+            step={CONTENT_SCALE_STEP}
+            value={cover.contentScale}
+            onChange={(e) => set({ contentScale: Number(e.target.value) })}
+            aria-label="Content size"
+            className="w-full accent-blue-600"
+          />
+          <p className="mt-1 text-[11px] leading-snug text-slate-400">
+            Grows every text size, gap and rule from the department down to the session — the whole
+            block scales together. The logo, university name and submission date stay fixed. Tap the
+            percentage to reset.
+          </p>
+          {contentOverflow && (
+            <p
+              role="status"
+              className="mt-1.5 flex items-start gap-1.5 rounded-lg border border-amber-300 bg-amber-50 px-2 py-1.5 text-[11px] font-semibold leading-snug text-amber-800"
+            >
+              <span aria-hidden>⚠️</span>
+              <span>
+                Content no longer fits above the date — the bottom of the cover is pushed out of
+                place. Lower the size or shorten the text.
+              </span>
+            </p>
+          )}
         </div>
 
         <div>

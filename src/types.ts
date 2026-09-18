@@ -27,6 +27,13 @@ export interface CoverSettings {
   logoSize: number; // mm
   fontKey: FontKey;
   backgroundKey: BackgroundKey;
+  /**
+   * Proportional scale (1 = 100%) for the body of the cover — department, course,
+   * title, and the Submitted To / Submitted By blocks. The logo, university name
+   * and submission date keep their size; everything inside the block scales
+   * together so the layout stays proportional.
+   */
+  contentScale: number;
 }
 
 export type SheetProps = CoverData & CoverSettings & { emblemUrl: string };

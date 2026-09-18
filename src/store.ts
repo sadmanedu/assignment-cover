@@ -38,6 +38,7 @@ const SETTING_KEYS: (keyof CoverSettings)[] = [
   'logoSize',
   'fontKey',
   'backgroundKey',
+  'contentScale',
 ];
 
 /** Pick only persistable data/settings (drops actions and unknown fields). */

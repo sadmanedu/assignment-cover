@@ -15,14 +15,19 @@ function val(v: string, fallback = '—'): string {
   return v.trim() ? v : fallback;
 }
 
-function Label({ children, top }: { children: string; top: number }) {
+/** Round to 3 decimals so generated CSS stays tidy (and identical between renders). */
+function r3(value: number): number {
+  return Math.round(value * 1000) / 1000;
+}
+
+function Label({ children, top, scale = 1 }: { children: string; top: number; scale?: number }) {
   return (
     <div
       style={{
-        marginTop: top,
-        fontSize: '8.5pt',
+        marginTop: r3(top * scale),
+        fontSize: `${r3(8.5 * scale)}pt`,
         fontWeight: 700,
-        letterSpacing: '2px',
+        letterSpacing: `${r3(2 * scale)}px`,
         textTransform: 'uppercase',
         color: GRAY,
       }}
@@ -32,14 +37,14 @@ function Label({ children, top }: { children: string; top: number }) {
   );
 }
 
-function Divider({ width = 42, top = 6 }: { width?: number; top?: number }) {
+function Divider({ width = 42, top = 6, scale = 1 }: { width?: number; top?: number; scale?: number }) {
   return (
     <div
       style={{
-        width: `${width}mm`,
+        width: `${r3(width * scale)}mm`,
         height: '1px',
         background: '#d1d5db',
-        marginTop: `${top}mm`,
+        marginTop: `${r3(top * scale)}mm`,
       }}
     />
   );
@@ -142,10 +147,17 @@ export function Sheet(props: SheetProps) {
     logoSize,
     fontKey,
     backgroundKey,
+    contentScale,
     emblemUrl,
   } = props;
 
   const accent = accentColor;
+  // One knob for the whole content block: every length inside it (type sizes,
+  // gaps, rules) is multiplied by this factor, so raising it grows the block
+  // proportionally instead of stretching individual lines.
+  const scale = Number.isFinite(contentScale) && contentScale > 0 ? contentScale : 1;
+  const pt = (value: number) => `${r3(value * scale)}pt`;
+  const mm = (value: number) => `${r3(value * scale)}mm`;
   const bg = BACKGROUNDS[backgroundKey];
   const font = FONT_STACKS[fontKey] ?? FONT_STACKS.sans;
   const logo = logoDataUrl ?? emblemUrl;
@@ -214,92 +226,108 @@ export function Sheet(props: SheetProps) {
         </div>
         <NameRule accent={accent} />
 
-        {/* Department & course */}
-        <div style={{ marginTop: '10mm', fontSize: '12.5pt', fontWeight: 700, color: DARK }}>
-          {val(department, 'Department Name')}
-        </div>
-        {courseTitle.trim() && (
-          <div style={{ marginTop: '2.5mm', fontSize: '10.5pt', color: MID }}>
-            <span style={{ color: GRAY }}>Course name: </span>
-            <span style={{ fontWeight: 600 }}>{courseTitle}</span>
-          </div>
-        )}
-        {courseCode.trim() && (
-          <div style={{ marginTop: '1.2mm', fontSize: '10.5pt', color: MID }}>
-            <span style={{ color: GRAY }}>Course code: </span>
-            <span style={{ fontWeight: 600 }}>{courseCode}</span>
-          </div>
-        )}
-
-        <Divider top={7} />
-
-        {/* Assignment title */}
-        <div style={{ marginTop: '6mm', fontSize: '10.5pt', fontStyle: 'italic', color: GRAY }}>
-          An Assignment on
-        </div>
+        {/* ---------------------------------------------------------------- */}
+        {/*  Scaled content block — department → session.                      */}
+        {/*  `contentScale` grows/shrinks everything in here together.          */}
+        {/* ---------------------------------------------------------------- */}
         <div
+          data-content-block=""
           style={{
-            marginTop: '2mm',
-            maxWidth: '150mm',
-            fontSize: '16pt',
-            fontWeight: 800,
-            lineHeight: 1.3,
-            color: accent,
-            // Honour the line breaks the user typed in the multi-line title box
-            // (`white-space: pre-line`) and keep long unbroken words inside the
-            // 150 mm column — both identical in the preview and the capture,
-            // which share this markup.
-            whiteSpace: 'pre-line',
-            overflowWrap: 'break-word',
+            width: '100%',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
           }}
         >
-          {val(assignmentTitle, 'Assignment Title')}
-        </div>
-
-        <Divider top={7} />
-
-        {/* Submitted To */}
-        <Label top={5}>Submitted To</Label>
-        <div style={{ marginTop: '1.5mm', fontSize: '12pt', fontWeight: 700, color: DARK }}>
-          {val(instructorName)}
-        </div>
-        <div
-          style={{
-            marginTop: '0.8mm',
-            fontSize: '10.5pt',
-            color: MID,
-            whiteSpace: 'pre-line',
-            overflowWrap: 'break-word',
-            lineHeight: 1.4,
-          }}
-        >
-          {val(instructorDesignation).replace(/\\n/g, '\n')}
-        </div>
-
-        <Divider top={8} />
-
-        {/* Submitted By */}
-        <Label top={5}>Submitted By</Label>
-        <div style={{ marginTop: '1.5mm', fontSize: '12pt', fontWeight: 700, color: DARK }}>
-          {val(studentName)}
-        </div>
-        {studentId.trim() && (
-          <div style={{ marginTop: '0.8mm', fontSize: '10.5pt', color: MID }}>
-            Student ID: {studentId}
+          {/* Department & course */}
+          <div style={{ marginTop: mm(10), fontSize: pt(12.5), fontWeight: 700, color: DARK }}>
+            {val(department, 'Department Name')}
           </div>
-        )}
-        {yearSemLine && (
-          <div style={{ marginTop: '1.5mm', fontSize: '10.5pt', color: MID }}>{yearSemLine}</div>
-        )}
-        {session.trim() && (
-          <div style={{ marginTop: '1.2mm', fontSize: '10.5pt', color: MID }}>
-            <span style={{ color: GRAY }}>Session: </span>
-            <span style={{ fontWeight: 600 }}>{session}</span>
+          {courseTitle.trim() && (
+            <div style={{ marginTop: mm(2.5), fontSize: pt(10.5), color: MID }}>
+              <span style={{ color: GRAY }}>Course name: </span>
+              <span style={{ fontWeight: 600 }}>{courseTitle}</span>
+            </div>
+          )}
+          {courseCode.trim() && (
+            <div style={{ marginTop: mm(1.2), fontSize: pt(10.5), color: MID }}>
+              <span style={{ color: GRAY }}>Course code: </span>
+              <span style={{ fontWeight: 600 }}>{courseCode}</span>
+            </div>
+          )}
+
+          <Divider top={7} scale={scale} />
+
+          {/* Assignment title */}
+          <div style={{ marginTop: mm(6), fontSize: pt(10.5), fontStyle: 'italic', color: GRAY }}>
+            An Assignment on
           </div>
-        )}
+          <div
+            style={{
+              marginTop: mm(2),
+              maxWidth: '150mm',
+              fontSize: pt(16),
+              fontWeight: 800,
+              lineHeight: 1.3,
+              color: accent,
+              // Honour the line breaks the user typed in the multi-line title box
+              // (`white-space: pre-line`) and keep long unbroken words inside the
+              // 150 mm column — both identical in the preview and the capture,
+              // which share this markup.
+              whiteSpace: 'pre-line',
+              overflowWrap: 'break-word',
+            }}
+          >
+            {val(assignmentTitle, 'Assignment Title')}
+          </div>
+
+          <Divider top={7} scale={scale} />
+
+          {/* Submitted To */}
+          <Label top={5} scale={scale}>Submitted To</Label>
+          <div style={{ marginTop: mm(1.5), fontSize: pt(12), fontWeight: 700, color: DARK }}>
+            {val(instructorName)}
+          </div>
+          <div
+            style={{
+              marginTop: mm(0.8),
+              fontSize: pt(10.5),
+              color: MID,
+              whiteSpace: 'pre-line',
+              overflowWrap: 'break-word',
+              lineHeight: 1.4,
+            }}
+          >
+            {val(instructorDesignation).replace(/\\n/g, '\n')}
+          </div>
+
+          <Divider top={8} scale={scale} />
+
+          {/* Submitted By */}
+          <Label top={5} scale={scale}>Submitted By</Label>
+          <div style={{ marginTop: mm(1.5), fontSize: pt(12), fontWeight: 700, color: DARK }}>
+            {val(studentName)}
+          </div>
+          {studentId.trim() && (
+            <div style={{ marginTop: mm(0.8), fontSize: pt(10.5), color: MID }}>
+              Student ID: {studentId}
+            </div>
+          )}
+          {yearSemLine && (
+            <div style={{ marginTop: mm(1.5), fontSize: pt(10.5), color: MID }}>{yearSemLine}</div>
+          )}
+          {session.trim() && (
+            <div style={{ marginTop: mm(1.2), fontSize: pt(10.5), color: MID }}>
+              <span style={{ color: GRAY }}>Session: </span>
+              <span style={{ fontWeight: 600 }}>{session}</span>
+            </div>
+          )}
+
+        </div>
 
         {/* Submission date (pinned near bottom) */}
         <div
+          data-date-block=""
           style={{
             marginTop: 'auto',
             display: 'flex',
