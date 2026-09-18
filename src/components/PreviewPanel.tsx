@@ -71,7 +71,7 @@ export function PreviewPanel({ mobileVisible }: { mobileVisible: boolean }) {
   };
 
   return (
-    <section className={`flex min-h-0 min-w-0 flex-1 flex-col ${mobileVisible ? '' : 'hidden'} lg:flex`}>
+    <section className={`flex min-h-0 min-w-0 flex-1 flex-col ${mobileVisible ? 'mobile-pane-in' : 'hidden'} lg:flex`}>
       {/* Toolbar */}
       <div className="flex min-h-12 shrink-0 flex-wrap items-center gap-x-1.5 gap-y-1 border-b border-slate-200 bg-white px-3 py-1.5 sm:gap-2 sm:px-4 sm:py-0">
         <button type="button" className="btn" title="Fit sheet to window" onClick={() => { setAutoFit(true); fit(); }}>
@@ -122,6 +122,9 @@ export function PreviewPanel({ mobileVisible }: { mobileVisible: boolean }) {
 
       {/* Dotted preview canvas */}
       <div ref={containerRef} className="preview-bg min-h-0 flex-1 overflow-auto">
+        <div className="mx-4 mt-3 rounded-xl border border-indigo-200 bg-gradient-to-r from-indigo-50 to-blue-50 px-3 py-2 text-center text-[11px] font-semibold text-indigo-700 shadow-sm sm:hidden">
+          ✨ To edit this page, go to the <span className="font-extrabold">Details</span> tab below.
+        </div>
         <div className="flex min-h-full items-start justify-center p-4 sm:p-8">
           <div
             className="relative shrink-0"

@@ -357,7 +357,7 @@ export function ControlsPanel({ logoUrl, mobileVisible }: { logoUrl: string; mob
 
   return (
     <aside
-      className={`${mobileVisible ? '' : 'hidden'} min-h-0 w-full flex-1 overflow-y-auto bg-white lg:block lg:w-[390px] lg:flex-1-none lg:shrink-0 lg:border-r lg:border-slate-200`}
+      className={`${mobileVisible ? 'mobile-pane-in' : 'hidden'} min-h-0 w-full flex-1 overflow-y-auto bg-white lg:block lg:w-[390px] lg:flex-1-none lg:shrink-0 lg:border-r lg:border-slate-200`}
     >
       {/* ---------- Readiness: what this panel does + what is still missing ---------- */}
       <div className="relative border-b border-slate-200 bg-slate-50/80 px-3.5 py-2">
@@ -800,7 +800,7 @@ export function ControlsPanel({ logoUrl, mobileVisible }: { logoUrl: string; mob
       </Section>
 
       {/* ---------- Data utilities ---------- */}
-      <Section title="Save & Export" icon="💾" note="this browser" defaultOpen={false}>
+      <Section title="Save & Export" icon="💾" note="autosaved in this browser" defaultOpen>
         <div className="grid grid-cols-2 gap-2">
           <button type="button" className="btn btn-primary" onClick={save}>
             Save

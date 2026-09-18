@@ -31,6 +31,15 @@ body {
   z-index: -10;
 }
 
+@keyframes mobile-pane-in {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@media (max-width: 1023px) {
+  .mobile-pane-in { animation: mobile-pane-in 260ms ease-out; }
+}
+
 /* ---------- Reusable controls ---------- */
 .btn {
   @apply inline-flex items-center justify-center gap-1.5 rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 shadow-sm transition select-none hover:border-slate-400 hover:bg-slate-50 active:scale-[0.98] disabled:pointer-events-none disabled:opacity-50;
@@ -49,7 +58,7 @@ body {
 }
 
 .field-input {
-  @apply w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-[13px] leading-5 text-slate-800 shadow-sm transition outline-none placeholder:text-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20;
+  @apply min-h-11 w-full rounded-lg border border-blue-200 bg-blue-50/40 px-3 py-2 text-[13px] leading-5 text-slate-800 shadow-sm transition outline-none placeholder:text-slate-400 hover:border-blue-300 hover:bg-blue-50/70 focus:border-blue-500 focus:bg-white focus:ring-2 focus:ring-blue-500/20;
 }
 
 /* Compact option button used by the style pickers */
