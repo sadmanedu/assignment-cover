@@ -39,6 +39,7 @@ const SETTING_KEYS: (keyof CoverSettings)[] = [
   'fontKey',
   'backgroundKey',
   'dividerStyle',
+  'submitLayout',
   'contentScale',
 ];
 

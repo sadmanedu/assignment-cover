@@ -125,6 +125,22 @@ function Divider({
 }
 
 /**
+ * One "Submitted To" / "Submitted By" panel. In the two-column layout each panel
+ * takes half the row and centres its own lines; stacked, both are full width and
+ * the second one is offset by the caller's gap.
+ */
+function panelStyle(columns: boolean, gap: string = '0mm'): CSSProperties {
+  return {
+    ...(columns ? { flex: '1 1 0', minWidth: 0 } : { maxWidth: '100%' }),
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    textAlign: 'center',
+    marginTop: gap,
+  };
+}
+
+/**
  * The cover's only rule: it sits under the university name and takes whichever
  * style the panel selected. It is part of the fixed header, so it never scales
  * with the content size and keeps the same 66 mm footprint — the `diamond` style
@@ -275,6 +291,7 @@ export function Sheet(props: SheetProps) {
     accentColor,
     borderStyle,
     dividerStyle,
+    submitLayout,
     logoDataUrl,
     logoShape,
     logoSize,
@@ -291,6 +308,7 @@ export function Sheet(props: SheetProps) {
   const scale = Number.isFinite(contentScale) && contentScale > 0 ? contentScale : 1;
   const pt = (value: number) => `${r3(value * scale)}pt`;
   const mm = (value: number) => `${r3(value * scale)}mm`;
+  const twoColumns = submitLayout === 'columns';
   const bg = BACKGROUNDS[backgroundKey];
   const font = FONT_STACKS[fontKey] ?? FONT_STACKS.sans;
   const logo = logoDataUrl ?? emblemUrl;
@@ -412,43 +430,68 @@ export function Sheet(props: SheetProps) {
             {val(assignmentTitle, 'Assignment Title')}
           </div>
 
-          {/* Submitted To */}
-          <Label top={12} scale={scale}>Submitted To</Label>
-          <div style={{ marginTop: mm(1.5), fontSize: pt(12), fontWeight: 700, color: DARK }}>
-            {val(instructorName)}
-          </div>
+          {/* ------------------------------------------------------------ */}
+          {/*  Submitted To / Submitted By — stacked or side by side.        */}
+          {/*  In `columns` each panel gets half the width; in `stacked` the  */}
+          {/*  two are separated by a two-line gap.                          */}
+          {/* ------------------------------------------------------------ */}
           <div
+            data-parties={submitLayout}
             style={{
-              marginTop: mm(0.8),
-              fontSize: pt(10.5),
-              color: MID,
-              whiteSpace: 'pre-line',
-              overflowWrap: 'break-word',
-              lineHeight: 1.4,
+              display: 'flex',
+              flexDirection: twoColumns ? 'row' : 'column',
+              alignItems: twoColumns ? 'stretch' : 'center',
+              justifyContent: twoColumns ? 'center' : undefined,
+              gap: twoColumns ? mm(6) : undefined,
+              width: '100%',
+              // The rules that used to separate the sections are gone, so their
+              // margins live here (7 mm above "Submitted To", 8 mm above
+              // "Submitted By") and the labels keep their own 5px offset.
+              marginTop: mm(7),
             }}
           >
-            {val(instructorDesignation).replace(/\\n/g, '\n')}
-          </div>
+            {/* Submitted To (left column in the two-column layout) */}
+            <div style={panelStyle(twoColumns)}>
+              <Label top={5} scale={scale}>Submitted To</Label>
+              <div style={{ marginTop: mm(1.5), fontSize: pt(12), fontWeight: 700, color: DARK }}>
+                {val(instructorName)}
+              </div>
+              <div
+                style={{
+                  marginTop: mm(0.8),
+                  fontSize: pt(10.5),
+                  color: MID,
+                  whiteSpace: 'pre-line',
+                  overflowWrap: 'break-word',
+                  lineHeight: 1.4,
+                }}
+              >
+                {val(instructorDesignation).replace(/\\n/g, '\n')}
+              </div>
+            </div>
 
-          {/* Submitted By */}
-          <Label top={13} scale={scale}>Submitted By</Label>
-          <div style={{ marginTop: mm(1.5), fontSize: pt(12), fontWeight: 700, color: DARK }}>
-            {val(studentName)}
+            {/* Submitted By (right column, or below with a two-line gap) */}
+            <div style={panelStyle(twoColumns, twoColumns ? '0mm' : mm(8))}>
+              <Label top={5} scale={scale}>Submitted By</Label>
+              <div style={{ marginTop: mm(1.5), fontSize: pt(12), fontWeight: 700, color: DARK }}>
+                {val(studentName)}
+              </div>
+              {studentId.trim() && (
+                <div style={{ marginTop: mm(0.8), fontSize: pt(10.5), color: MID }}>
+                  Student ID: {studentId}
+                </div>
+              )}
+              {yearSemLine && (
+                <div style={{ marginTop: mm(1.5), fontSize: pt(10.5), color: MID }}>{yearSemLine}</div>
+              )}
+              {session.trim() && (
+                <div style={{ marginTop: mm(1.2), fontSize: pt(10.5), color: MID }}>
+                  <span style={{ color: GRAY }}>Session: </span>
+                  <span style={{ fontWeight: 600 }}>{session}</span>
+                </div>
+              )}
+            </div>
           </div>
-          {studentId.trim() && (
-            <div style={{ marginTop: mm(0.8), fontSize: pt(10.5), color: MID }}>
-              Student ID: {studentId}
-            </div>
-          )}
-          {yearSemLine && (
-            <div style={{ marginTop: mm(1.5), fontSize: pt(10.5), color: MID }}>{yearSemLine}</div>
-          )}
-          {session.trim() && (
-            <div style={{ marginTop: mm(1.2), fontSize: pt(10.5), color: MID }}>
-              <span style={{ color: GRAY }}>Session: </span>
-              <span style={{ fontWeight: 600 }}>{session}</span>
-            </div>
-          )}
 
         </div>
 

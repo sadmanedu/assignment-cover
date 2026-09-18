@@ -1,4 +1,12 @@
-import type { BackgroundKey, BorderStyle, CoverData, CoverSettings, DividerStyle, FontKey } from './types';
+import type {
+  BackgroundKey,
+  BorderStyle,
+  CoverData,
+  CoverSettings,
+  DividerStyle,
+  FontKey,
+  SubmitLayout,
+} from './types';
 
 /** A4 sheet metrics (96dpi screen px for a 210×297mm sheet). */
 export const A4 = { wMm: 210, hMm: 297, wPx: 793.7, hPx: 1122.5 } as const;
@@ -33,6 +41,7 @@ export const DEFAULT_SETTINGS: CoverSettings = {
   accentColor: '#1e3a8a',
   borderStyle: 'double',
   dividerStyle: 'diamond',
+  submitLayout: 'stacked',
   logoDataUrl: DEFAULT_LOGO_URL,
   logoShape: 'normal',
   logoSize: 36,
@@ -87,6 +96,12 @@ export const BORDER_OPTIONS: { key: BorderStyle; label: string }[] = [
   { key: 'corners', label: 'Corner Marks' },
   { key: 'flourish', label: 'Flourish' },
   { key: 'stitched', label: 'Stitched' },
+];
+
+/** Two ways to arrange the "Submitted To" / "Submitted By" panels. */
+export const SUBMIT_LAYOUT_OPTIONS: { key: SubmitLayout; label: string; hint: string }[] = [
+  { key: 'stacked', label: 'Stacked', hint: 'To above By' },
+  { key: 'columns', label: 'Two Columns', hint: 'To left, By right' },
 ];
 
 export const DIVIDER_OPTIONS: { key: DividerStyle; label: string }[] = [

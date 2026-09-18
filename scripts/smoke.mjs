@@ -27,6 +27,9 @@ const staticChecks = [
   ['divider designs defined (8)', (read('src/constants.ts').match(/DIVIDER_OPTIONS[\s\S]*?\n\];/)?.[0].match(/key: '/g) ?? []).length === 8],
   ['border designs defined (9)', (read('src/constants.ts').match(/BORDER_OPTIONS[\s\S]*?\n\];/)?.[0].match(/key: '/g) ?? []).length === 9],
   ['divider choice is persisted', /'dividerStyle'/.test(read('src/store.ts'))],
+  ['submit layout is persisted', /'submitLayout'/.test(read('src/store.ts'))],
+  ['two submit layouts defined', (read('src/constants.ts').match(/SUBMIT_LAYOUT_OPTIONS[\s\S]*?\n\];/)?.[0].match(/key: '/g) ?? []).length === 2],
+  ['stacked is the default submit layout', /submitLayout:\s*'stacked'/.test(read('src/constants.ts'))],
   ['sheet draws every divider style', /case 'diamond':/.test(read('src/components/Sheet.tsx')) && /case 'fade':/.test(read('src/components/Sheet.tsx'))],
   ['sheet draws every border style', /bs === 'stitched'/.test(read('src/components/Sheet.tsx')) && /bs === 'corners'/.test(read('src/components/Sheet.tsx'))],
 ];
@@ -181,6 +184,44 @@ try {
       if (!ok) failed = true;
     }
     useCover.getState().set({ borderStyle: 'double' });
+
+    /* Submitted To / By arrangement. Geometry is checked in the browser harness;
+       here we assert the choice reaches the sheet and travels in the save file. */
+    const parties = () => {
+      const wrap = dom.window.document.querySelector('#print-sheet [data-parties]');
+      if (!wrap) return null;
+      const to = wrap.children[0];
+      const by = wrap.children[1];
+      return {
+        layout: wrap.dataset.parties,
+        direction: wrap.style.flexDirection,
+        panels: wrap.children.length,
+        labels: [to?.textContent.trim().startsWith('Submitted To'), by?.textContent.trim().startsWith('Submitted By')],
+        byOffset: by?.style.marginTop ?? '',
+      };
+    };
+
+    useCover.getState().set({ submitLayout: 'stacked' });
+    await settle();
+    const stacked = parties();
+    useCover.getState().set({ submitLayout: 'columns' });
+    await settle();
+    const columns = parties();
+
+    const layoutChecks = [
+      ['two panels are rendered', stacked?.panels === 2 && columns?.panels === 2],
+      ['panels are Submitted To then Submitted By', stacked?.labels.every(Boolean) === true],
+      ['stacked layout stacks the panels', stacked?.layout === 'stacked' && stacked?.direction === 'column'],
+      ['two-column layout puts the panels side by side', columns?.layout === 'columns' && columns?.direction === 'row'],
+      ['stacked layout leaves a gap above Submitted By', stacked?.byOffset !== '0mm' && stacked?.byOffset !== ''],
+      ['two-column layout aligns the panels', columns?.byOffset === '0mm'],
+      ['submit layout is stored in the save file', pickPersistable(useCover.getState()).settings.submitLayout === 'columns'],
+    ];
+    for (const [name, ok] of layoutChecks) {
+      console.log(`${ok ? 'PASS' : 'FAIL'}  ${name}`);
+      if (!ok) failed = true;
+    }
+    useCover.getState().set({ submitLayout: 'stacked' });
   } catch (err) {
     console.error('DESIGN CHECK ERROR:', err);
     failed = true;

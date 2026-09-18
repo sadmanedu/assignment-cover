@@ -9,6 +9,7 @@ import {
   CONTENT_SCALE_STEP,
   DIVIDER_OPTIONS,
   FONT_OPTIONS,
+  SUBMIT_LAYOUT_OPTIONS,
   FONT_STACKS,
   LOGO_SIZE_MAX,
   LOGO_SIZE_MIN,
@@ -17,7 +18,7 @@ import {
 } from '../constants';
 import { toast } from '../lib/toast';
 import { buildDetailsText, copyText } from '../lib/format';
-import type { BorderStyle, DividerStyle, FontKey, LogoShape } from '../types';
+import type { BorderStyle, DividerStyle, FontKey, LogoShape, SubmitLayout } from '../types';
 import { Field, Section, Seg } from './ui';
 
 /**
@@ -168,6 +169,39 @@ function BorderSample({ kind, accent }: { kind: BorderStyle; accent: string }) {
     default:
       return <span style={{ ...frame, ...line({}) }} />;
   }
+}
+
+/** Miniature of the two "Submitted To / By" arrangements. */
+function SubmitLayoutSample({ kind, accent }: { kind: SubmitLayout; accent: string }) {
+  const bar = (w: string, strong = false): CSSProperties => ({
+    width: w,
+    height: strong ? 5 : 3,
+    borderRadius: 1,
+    background: strong ? accent : '#cbd5e1',
+  });
+  if (kind === 'columns') {
+    return (
+      <span style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'center', gap: 8, height: '100%', paddingTop: 3 }}>
+        {[0, 1].map((col) => (
+          <span key={col} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
+            <span style={{ ...bar('60%'), height: 2 }} />
+            <span style={bar('80%', true)} />
+            <span style={bar('68%')} />
+          </span>
+        ))}
+      </span>
+    );
+  }
+  return (
+    <span style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 2, height: '100%', paddingTop: 1 }}>
+      <span style={{ ...bar('60%'), height: 2 }} />
+      <span style={bar('80%', true)} />
+      <span style={bar('68%')} />
+      <span style={{ height: 4 }} />
+      <span style={{ ...bar('60%'), height: 2 }} />
+      <span style={bar('80%', true)} />
+    </span>
+  );
 }
 
 /** Miniature of each divider style — the same drawing the sheet uses, shrunk. */
@@ -583,6 +617,32 @@ export function ControlsPanel({ logoUrl, mobileVisible }: { logoUrl: string; mob
               </span>
             </p>
           )}
+        </div>
+
+        <div>
+          <span className="field-label">Submitted To / By</span>
+          <div className="flex gap-2">
+            {SUBMIT_LAYOUT_OPTIONS.map((o) => (
+              <button
+                key={o.key}
+                type="button"
+                onClick={() => set({ submitLayout: o.key })}
+                className={`flex-1 rounded-lg border p-1.5 text-center transition ${
+                  cover.submitLayout === o.key
+                    ? 'border-blue-500 bg-blue-50'
+                    : 'border-slate-200 hover:border-slate-300'
+                }`}
+              >
+                <span className="block h-11 w-full overflow-hidden rounded border border-slate-200 bg-white">
+                  <SubmitLayoutSample kind={o.key} accent={accent} />
+                </span>
+                <span className="mt-1 block text-[10px] font-semibold leading-tight text-slate-600">
+                  {o.label}
+                </span>
+                <span className="block text-[10px] leading-tight text-slate-400">{o.hint}</span>
+              </button>
+            ))}
+          </div>
         </div>
 
         <div>

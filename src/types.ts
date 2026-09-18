@@ -8,6 +8,12 @@ export type BorderStyle =
   | 'corners'
   | 'flourish'
   | 'stitched';
+/**
+ * How the "Submitted To" and "Submitted By" panels sit on the cover:
+ * `stacked` puts them one above the other, `columns` puts To on the left and By
+ * on the right.
+ */
+export type SubmitLayout = 'stacked' | 'columns';
 export type DividerStyle =
   | 'hairline'
   | 'dashed'
@@ -42,6 +48,8 @@ export interface CoverSettings {
   borderStyle: BorderStyle;
   /** Hairline and the other rule styles used between the cover's blocks. */
   dividerStyle: DividerStyle;
+  /** Stacked (one above the other) or two columns (To left, By right). */
+  submitLayout: SubmitLayout;
   logoDataUrl: string | null; // null → default generated emblem
   logoShape: LogoShape;
   logoSize: number; // mm
